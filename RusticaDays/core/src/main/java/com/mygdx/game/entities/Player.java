@@ -1,12 +1,15 @@
 package com.mygdx.game.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.entities.animations.PlayerAnimationManager;
 import com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState;
 
 public class Player {
     private float x, y;
-    private float speed = 75f; // pixels/second
+    private float speed = 80f; // pixels/second
+    private Rectangle bounds;
 
     private PlayerAnimationManager animationManager;
     private PlayerState currentState = PlayerState.STAND_DOWN;
@@ -17,11 +20,19 @@ public class Player {
         this.x = startX;
         this.y = startY;
         this.animationManager = new PlayerAnimationManager(spritesheetPath);
+
+        // Khởi tạo bounds dựa trên kích thước của frame
+        int frameWidth = animationManager.getFrameWidth();
+        int frameHeight = animationManager.getFrameHeight();
+        this.bounds = new Rectangle(x, y, frameWidth, frameHeight);
     }
 
     public void update(float deltaTime) {
         // Update animations
         animationManager.update(deltaTime, currentState);
+
+        // Cập nhật bounds theo vị trí hiện tại
+        bounds.setPosition(x, y);
 
         // Save current state for next frame
         previousState = currentState;
@@ -80,13 +91,19 @@ public class Player {
     public float getY() {
         return y;
     }
-
+    // Thêm phương thức để lấy vị trí dưới dạng Vector2
+    public Vector2 getPosition() {
+        return new Vector2(x, y);
+    }
     public void setX(float x) {
         this.x = x;
     }
 
     public void setY(float y) {
         this.y = y;
+    }
+    public Rectangle getBounds() {
+        return bounds;
     }
 
     public void dispose() {
