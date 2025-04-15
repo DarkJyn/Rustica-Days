@@ -16,15 +16,34 @@ public class GameLaucher extends ApplicationAdapter {
     private Player player;
     private PlayerInputHandler inputHandler;
 
+    // Thêm biến để lưu kích thước map
+    private float mapWidth;
+    private float mapHeight;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
 
         // Initialize camera
-        camera = new GameCamera(300, 225);
+        float viewportWidth = 300;
+        float viewportHeight = 225;
+        camera = new GameCamera(viewportWidth, viewportHeight);
 
         // Initialize map
         mapRenderer = new MapRenderer("Map/MapFix.tmx");
+
+        // Lấy kích thước map từ MapRenderer
+        // Giả sử MapRenderer có phương thức để lấy kích thước map
+        // Nếu không, bạn có thể thiết lập trực tiếp
+        mapWidth = mapRenderer.getMapWidth(); // Thay thế bằng kích thước thật của map
+        mapHeight = mapRenderer.getMapHeight(); // Thay thế bằng kích thước thật của map
+
+        // Thiết lập giới hạn map cho camera
+        camera.setWorldBounds(mapWidth, mapHeight);
+
+        // Bật smooth camera (tùy chọn)
+        camera.setSmoothCamera(true);
+        camera.setLerpFactor(0.1f);
 
         // Initialize player
         player = new Player(100, 100, "Player.png");
@@ -43,6 +62,9 @@ public class GameLaucher extends ApplicationAdapter {
         // Update player
         player.update(delta);
 
+        // Thêm kiểm tra giới hạn map cho player (tùy chọn)
+        limitPlayerToMapBounds();
+
         // Update camera to follow player
         camera.followTarget(player.getX(), player.getY());
 
@@ -57,6 +79,37 @@ public class GameLaucher extends ApplicationAdapter {
         batch.begin();
         player.render(batch);
         batch.end();
+    }
+
+    // Thêm phương thức để giới hạn player trong map
+    private void limitPlayerToMapBounds() {
+        float playerX = player.getX();
+        float playerY = player.getY();
+        int frameWidth = (int) player.getBounds().width;
+        int frameHeight = (int) player.getBounds().height;
+
+        // Giới hạn player trong phạm vi map
+        if (playerX < 0) {
+            player.setX(0);
+        }
+        if (playerY < 0) {
+            player.setY(0);
+        }
+        if (playerX + frameWidth > mapWidth) {
+            player.setX(mapWidth - frameWidth);
+        }
+        if (playerY + frameHeight > mapHeight) {
+            player.setY(mapHeight - frameHeight);
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        // Điều chỉnh camera khi kích thước màn hình thay đổi
+        float aspectRatio = (float) width / (float) height;
+        float viewportWidth = 300;
+        float viewportHeight = viewportWidth / aspectRatio;
+        camera.resize(viewportWidth, viewportHeight);
     }
 
     @Override

@@ -29,6 +29,9 @@ public class PlayerAnimationManager {
         playerSpriteSheet = new Texture(spritesheetPath);
         createAnimations();
         stateTime = 0f;
+
+        // Khởi tạo currentFrame với frame đầu tiên để tránh null pointer
+        currentFrame = standDownAnimation.getKeyFrame(0);
     }
 
     private void createAnimations() {
@@ -119,10 +122,18 @@ public class PlayerAnimationManager {
     }
 
     public int getFrameWidth() {
+        if (currentFrame == null) {
+            // Nếu vì lý do nào đó currentFrame vẫn null, trả về giá trị mặc định
+            return playerSpriteSheet.getWidth() / FRAME_COLS;
+        }
         return currentFrame.getRegionWidth();
     }
 
     public int getFrameHeight() {
+        if (currentFrame == null) {
+            // Nếu vì lý do nào đó currentFrame vẫn null, trả về giá trị mặc định
+            return playerSpriteSheet.getHeight() / FRAME_ROWS;
+        }
         return currentFrame.getRegionHeight();
     }
 
