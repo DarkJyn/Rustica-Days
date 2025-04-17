@@ -34,4 +34,7 @@ public class MapRenderer {
         int mapHeight = props.get("height", Integer.class) * props.get("tileheight", Integer.class);
         return mapHeight;
     }
+    public TiledMap getMap() {
+        return map;
+    }
 }

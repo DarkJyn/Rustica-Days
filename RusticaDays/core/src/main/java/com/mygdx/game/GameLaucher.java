@@ -16,7 +16,7 @@ public class GameLaucher extends ApplicationAdapter {
     private Player player;
     private PlayerInputHandler inputHandler;
 
-    // Thêm biến để lưu kích thước map
+    //Biến để lưu kích thước map
     private float mapWidth;
     private float mapHeight;
 
@@ -24,48 +24,46 @@ public class GameLaucher extends ApplicationAdapter {
     public void create() {
         batch = new SpriteBatch();
 
-        // Initialize camera
-        float viewportWidth = 300;
-        float viewportHeight = 225;
+        // Khởi tạo Camera 480 360
+        float viewportWidth = 434;
+        float viewportHeight = 314;
         camera = new GameCamera(viewportWidth, viewportHeight);
 
-        // Initialize map
+        // Khởi tạo Map
         mapRenderer = new MapRenderer("Map/MapFix.tmx");
 
         // Lấy kích thước map từ MapRenderer
-        // Giả sử MapRenderer có phương thức để lấy kích thước map
-        // Nếu không, bạn có thể thiết lập trực tiếp
-        mapWidth = mapRenderer.getMapWidth(); // Thay thế bằng kích thước thật của map
-        mapHeight = mapRenderer.getMapHeight(); // Thay thế bằng kích thước thật của map
+        mapWidth = mapRenderer.getMapWidth();
+        mapHeight = mapRenderer.getMapHeight();
 
         // Thiết lập giới hạn map cho camera
         camera.setWorldBounds(mapWidth, mapHeight);
 
-        // Bật smooth camera (tùy chọn)
+        // Bật smooth camera
         camera.setSmoothCamera(true);
         camera.setLerpFactor(0.1f);
 
-        // Initialize player
-        player = new Player(100, 100, "Player.png");
+        // Khởi tạo Player
+        player = new Player(300, 300, "Player.png");
 
-        // Initialize input handler
-        inputHandler = new PlayerInputHandler(player);
+        // Khởi tạp nhận Input
+        inputHandler = new PlayerInputHandler(player,mapRenderer.getMap());
     }
 
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        // Update player based on input
+        // Cập nhận di chuyển
         inputHandler.processInput(delta);
 
-        // Update player
+        // Cập nhật tọa độ Player
         player.update(delta);
 
         // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
 
-        // Update camera to follow player
+        // Camera follow Player
         camera.followTarget(player.getX(), player.getY());
 
         // Clear screen
@@ -81,7 +79,7 @@ public class GameLaucher extends ApplicationAdapter {
         batch.end();
     }
 
-    // Thêm phương thức để giới hạn player trong map
+    // Phương thức limit Player trong Map
     private void limitPlayerToMapBounds() {
         float playerX = player.getX();
         float playerY = player.getY();
@@ -105,9 +103,9 @@ public class GameLaucher extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        // Điều chỉnh camera khi kích thước màn hình thay đổi
+//         Điều chỉnh camera khi kích thước màn hình thay đổi
         float aspectRatio = (float) width / (float) height;
-        float viewportWidth = 300;
+        float viewportWidth = 350;
         float viewportHeight = viewportWidth / aspectRatio;
         camera.resize(viewportWidth, viewportHeight);
     }
