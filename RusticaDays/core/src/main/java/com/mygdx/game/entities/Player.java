@@ -42,9 +42,9 @@ public class Player {
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
 
-        // Draw player with animation
+        // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
         if (facingLeft) {
-            // Flip the texture region for left-facing animations
+            // Lật texture sang trái
             batch.draw(animationManager.getCurrentFrame(), x + frameWidth, y, -frameWidth, frameHeight);
         } else {
             batch.draw(animationManager.getCurrentFrame(), x, y);
@@ -74,7 +74,7 @@ public class Player {
     }
 
     public void standStill() {
-        // Set standing animation based on previous movement
+        // Set Animation đứng yên dựa trên hướng vừa di chuyển
         if (previousState == PlayerState.WALK_UP || previousState == PlayerState.STAND_UP) {
             currentState = PlayerState.STAND_UP;
         } else if (previousState == PlayerState.WALK_RIGHT || previousState == PlayerState.STAND_RIGHT) {
@@ -105,7 +105,9 @@ public class Player {
     public Rectangle getBounds() {
         return bounds;
     }
-
+    public float getSpeed() {
+        return speed;
+    }
     public void dispose() {
         animationManager.dispose();
     }

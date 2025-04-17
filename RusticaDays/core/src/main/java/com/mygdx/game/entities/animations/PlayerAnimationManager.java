@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class PlayerAnimationManager {
-    // Animation constants
+    // Chia ô Asset Player
     private static final int FRAME_COLS = 6;
     private static final int FRAME_ROWS = 6;
     private static final float FRAME_DURATION = 0.15f;
@@ -35,13 +35,13 @@ public class PlayerAnimationManager {
     }
 
     private void createAnimations() {
-        // Split the sprite sheet into frames
+        // Chia sprite sheet thành frames
         TextureRegion[][] tmp = TextureRegion.split(
             playerSpriteSheet,
             playerSpriteSheet.getWidth() / FRAME_COLS,
             playerSpriteSheet.getHeight() / FRAME_ROWS);
 
-        // Create animation arrays
+        // Tạo mảng chạy animation
         TextureRegion[] standUpFrames = new TextureRegion[FRAME_COLS];
         TextureRegion[] standRightFrames = new TextureRegion[FRAME_COLS];
         TextureRegion[] standDownFrames = new TextureRegion[FRAME_COLS];
@@ -49,7 +49,7 @@ public class PlayerAnimationManager {
         TextureRegion[] walkRightFrames = new TextureRegion[FRAME_COLS];
         TextureRegion[] walkDownFrames = new TextureRegion[FRAME_COLS];
 
-        // Fill the arrays with frames from the sprite sheet
+        // Nạp arrays chứa Frame từ sprite sheet
         // Row 0: Stand Down
         for (int i = 0; i < FRAME_COLS; i++) {
             standDownFrames[i] = tmp[0][i];
@@ -80,7 +80,7 @@ public class PlayerAnimationManager {
             walkUpFrames[i] = tmp[5][i];
         }
 
-        // Create animations
+        // Tạo Animations
         standUpAnimation = new Animation<>(FRAME_DURATION, standUpFrames);
         standRightAnimation = new Animation<>(FRAME_DURATION, standRightFrames);
         standDownAnimation = new Animation<>(FRAME_DURATION, standDownFrames);
@@ -88,11 +88,10 @@ public class PlayerAnimationManager {
         walkRightAnimation = new Animation<>(FRAME_DURATION, walkRightFrames);
         walkDownAnimation = new Animation<>(FRAME_DURATION, walkDownFrames);
     }
-
+// Update trạng thái dựa trên state hiện tại
     public void update(float deltaTime, PlayerState state) {
         stateTime += deltaTime;
 
-        // Get the appropriate frame based on current state
         switch (state) {
             case STAND_UP:
                 currentFrame = standUpAnimation.getKeyFrame(stateTime, true);
