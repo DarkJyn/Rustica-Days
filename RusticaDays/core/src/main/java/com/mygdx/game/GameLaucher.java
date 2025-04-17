@@ -8,6 +8,7 @@ import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.input.PlayerInputHandler;
 import com.mygdx.game.render.MapRenderer;
+import com.mygdx.game.ui.StatsBar;
 
 public class GameLaucher extends ApplicationAdapter {
     private SpriteBatch batch;
@@ -15,6 +16,7 @@ public class GameLaucher extends ApplicationAdapter {
     private MapRenderer mapRenderer;
     private Player player;
     private PlayerInputHandler inputHandler;
+    private StatsBar statsBar;
 
     //Biến để lưu kích thước map
     private float mapWidth;
@@ -48,6 +50,9 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Khởi tạp nhận Input
         inputHandler = new PlayerInputHandler(player,mapRenderer.getMap());
+
+        // Khởi tạo StatsBar
+        statsBar = new StatsBar(batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
@@ -60,6 +65,8 @@ public class GameLaucher extends ApplicationAdapter {
         // Cập nhật tọa độ Player
         player.update(delta);
 
+
+
         // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
 
@@ -71,6 +78,9 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Render map
         mapRenderer.render(camera.getCamera());
+
+        // Render StatsBar
+        statsBar.render(batch);
 
         // Render player
         batch.setProjectionMatrix(camera.getCamera().combined);
@@ -108,6 +118,7 @@ public class GameLaucher extends ApplicationAdapter {
         float viewportWidth = 350;
         float viewportHeight = viewportWidth / aspectRatio;
         camera.resize(viewportWidth, viewportHeight);
+        statsBar.resize(width, height);
     }
 
     @Override
@@ -115,5 +126,6 @@ public class GameLaucher extends ApplicationAdapter {
         batch.dispose();
         player.dispose();
         mapRenderer.dispose();
+        statsBar.dispose();
     }
 }
