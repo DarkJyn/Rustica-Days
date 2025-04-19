@@ -52,7 +52,11 @@ public class GameLaucher extends ApplicationAdapter {
         inputHandler = new PlayerInputHandler(player,mapRenderer.getMap());
 
         // Khởi tạo StatsBar
-        statsBar = new StatsBar(batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // Thiết lập một số giá trị ban đầu cho StatsBar
+        statsBar.setMoney(500);
+        statsBar.setExperience(0);
+        statsBar.setStamina(100);
     }
 
     @Override
