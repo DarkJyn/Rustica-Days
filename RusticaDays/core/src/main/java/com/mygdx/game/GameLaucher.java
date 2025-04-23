@@ -2,7 +2,9 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
@@ -18,13 +20,18 @@ public class GameLaucher extends ApplicationAdapter {
     private PlayerInputHandler inputHandler;
     private StatsBar statsBar;
 
+    private ShapeRenderer shapeRenderer;
     //Biến để lưu kích thước map
     private float mapWidth;
     private float mapHeight;
 
+    // Biến để bật/tắt debug mode
+    private boolean debugMode = false;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
 
         // Khởi tạo Camera 480 360
         float viewportWidth = 434;
@@ -49,10 +56,11 @@ public class GameLaucher extends ApplicationAdapter {
         player = new Player(300, 300, "Player.png");
 
         // Khởi tạp nhận Input
-        inputHandler = new PlayerInputHandler(player,mapRenderer.getMap());
+        inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
 
         // Khởi tạo StatsBar
         statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(500);
         statsBar.setExperience(0);
@@ -63,13 +71,18 @@ public class GameLaucher extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        // Cập nhận di chuyển
+        // Bật/tắt debug mode khi nhấn F3
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
+            debugMode = !debugMode;
+            inputHandler.getCollisionHandler().setDebugRender(debugMode);
+            System.out.println("Debug mode: " + (debugMode ? "ON" : "OFF"));
+        }
+
+        // Cập nhật di chuyển
         inputHandler.processInput(delta);
 
         // Cập nhật tọa độ Player
         player.update(delta);
-
-
 
         // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
@@ -83,14 +96,26 @@ public class GameLaucher extends ApplicationAdapter {
         // Render map
         mapRenderer.render(camera.getCamera());
 
-        // Render StatsBar
-        statsBar.render(batch);
+        // Render debug collision nếu đang ở chế độ debug
+        if (debugMode) {
+            shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
+            inputHandler.getCollisionHandler().renderCollisions(shapeRenderer);
+
+            // Vẽ hitbox của player
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(0, 1, 0, 1);
+            shapeRenderer.rect(player.getX(), player.getY(), player.getBounds().width, player.getBounds().height);
+            shapeRenderer.end();
+        }
 
         // Render player
         batch.setProjectionMatrix(camera.getCamera().combined);
         batch.begin();
         player.render(batch);
         batch.end();
+
+        // Render StatsBar
+        statsBar.render(batch);
     }
 
     // Phương thức limit Player trong Map
@@ -117,7 +142,7 @@ public class GameLaucher extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-//         Điều chỉnh camera khi kích thước màn hình thay đổi
+        // Điều chỉnh camera khi kích thước màn hình thay đổi
         float aspectRatio = (float) width / (float) height;
         float viewportWidth = 350;
         float viewportHeight = viewportWidth / aspectRatio;
@@ -131,5 +156,6 @@ public class GameLaucher extends ApplicationAdapter {
         player.dispose();
         mapRenderer.dispose();
         statsBar.dispose();
+        shapeRenderer.dispose();
     }
 }

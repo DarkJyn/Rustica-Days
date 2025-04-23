@@ -37,6 +37,7 @@ public class StatsBar {
     private Texture staminaIcon;
     private Texture coinIcon;
     private Texture statsBackground;
+    private Texture Bar;
 
     public StatsBar(int screenWidth, int screenHeight) {
         // Initialize camera and viewport for HUD
@@ -56,10 +57,11 @@ public class StatsBar {
         staminaIcon = new Texture(Gdx.files.internal("StaminaIcon.png"));
         statsBackground = new Texture(Gdx.files.internal("StatsBackGr.png"));
         coinIcon = new Texture(Gdx.files.internal("coin.png"));
+        Bar = new Texture(Gdx.files.internal("Bar.png"));
 
         // Initialize game stats with default values
         level = 99;
-        experience = 0;
+        experience = 50;
         maxExperience = 100;
         money = 0;
         stamina = 100;
@@ -129,10 +131,14 @@ public class StatsBar {
         shapeRenderer.rect(PADDING + 80, viewport.getWorldHeight() - PADDING - BAR_HEIGHT - 20, BAR_WIDTH, BAR_HEIGHT + 3);
 
         // Foreground (actual stamina)
-        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.setColor(Color.YELLOW);
         float staminaWidth = (stamina / maxStamina) * BAR_WIDTH;
         shapeRenderer.rect(PADDING + 80, viewport.getWorldHeight() - PADDING - BAR_HEIGHT - 20, staminaWidth, BAR_HEIGHT + 3);
         shapeRenderer.end();
+
+        batch.begin();
+        batch.draw(Bar, PADDING + 80, viewport.getWorldHeight() - PADDING - 40,180, 25);
+        batch.end();
 
     }
 
@@ -152,6 +158,10 @@ public class StatsBar {
         batch.begin();
         // Sử dụng pixellariFont thay vì font mặc định
         lvFont.draw(batch, "Lv." + level, PADDING + 20, viewport.getWorldHeight() - PADDING * 6 - BAR_HEIGHT + 5);
+        batch.end();
+
+        batch.begin();
+        batch.draw(Bar, PADDING + 80, viewport.getWorldHeight() - PADDING - 80,180, 25);
         batch.end();
     }
 
