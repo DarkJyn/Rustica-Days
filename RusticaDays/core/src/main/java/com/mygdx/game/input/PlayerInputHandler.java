@@ -3,81 +3,84 @@ package com.mygdx.game.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.entities.Player;
 
 public class PlayerInputHandler {
     private Player player;
     private TiledMap map;
-    private TiledMapTileLayer walkableLayer; // Layer chứa đường màu nâu
-    public PlayerInputHandler(Player player,TiledMap map) {
-        this.player = player;
-            this.map = map;
+    private CollisionHandler collisionHandler;
+    private Rectangle playerBounds;
+    private float playerSpeed;
 
-            // Lấy các layer có thể đi được
-            this.walkableLayer = (TiledMapTileLayer) map.getLayers().get("Walkable");
+    public PlayerInputHandler(Player player, TiledMap map) {
+        this.player = player;
+        this.map = map;
+
+        // Khởi tạo collision handler với tên của object layer là "Collision"
+        collisionHandler = new CollisionHandler(map, "Collisions");
+
+        // Lấy bounds từ player
+        playerBounds = new Rectangle(player.getBounds());
+        playerSpeed = player.getSpeed();
+    }
+
+    public CollisionHandler getCollisionHandler() {
+        return collisionHandler;
     }
 
     public void processInput(float delta) {
-        boolean isMoving = false;
-        float originalX = player.getX();
-        float originalY = player.getY();
-        // Process input and determine state
+        // Cập nhật playerBounds theo vị trí hiện tại của player
+        playerBounds.setPosition(player.getX(), player.getY());
+
+        // Xử lý input - chỉ di chuyển một hướng duy nhất
+        float deltaX = 0, deltaY = 0;
+        boolean hasMoved = false;
+
+        // Kiểm tra phím theo thứ tự ưu tiên
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-            float newX = originalX - player.getSpeed() * delta;
-//            float newX = originalX - delta;
-            if (canMoveTo(newX, originalY)) {
-                player.moveLeft(delta);
-                isMoving = true;
-            }
+            deltaX = -playerSpeed * delta;
+            hasMoved = true;
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-            float newX = originalX + player.getSpeed() * delta;
-//            float newX = originalX + delta;
-            if (canMoveTo(newX, originalY)) {
-                player.moveRight(delta);
-                isMoving = true;
-            }
+            deltaX = playerSpeed * delta;
+            hasMoved = true;
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
-            float newY = originalY + player.getSpeed() * delta;
-//            float newY = originalY +  delta;
-            if (canMoveTo(originalX, newY)) {
-                player.moveUp(delta);
-                isMoving = true;
-            }
+            deltaY = playerSpeed * delta;
+            hasMoved = true;
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
-            float newY = originalY - player.getSpeed() * delta;
-//            float newY = originalY - delta;
-            if (canMoveTo(originalX, newY)){
-                player.moveDown(delta);
-                isMoving = true;
-            }
+            deltaY = -playerSpeed * delta;
+            hasMoved = true;
         }
 
-        // If not moving, set to standing animation
-        if (!isMoving) {
+        // Nếu không có phím nào được nhấn
+        if (!hasMoved) {
             player.standStill();
-        }
-    }
-    private boolean canMoveTo(float x, float y) {
-        int tileX = (int) (x / walkableLayer.getTileWidth());
-        int tileY = (int) (y / walkableLayer.getTileHeight());
-
-        // Kiểm tra nếu vị trí nằm trên BẤT KỲ layer nào được phép đi
-        boolean canWalk = false;
-
-//         Kiểm tra trên đường màu nâu
-        if (walkableLayer != null && walkableLayer.getCell(tileX, tileY) != null) {
-            canWalk = true;
+            return;
         }
 
-        // Kiểm tra trên cỏ (nếu cho phép đi trên cỏ)
-//        if (!canWalk && grassLayer != null && grassLayer.getCell(tileX, tileY) != null) {
-//            canWalk = true;
-//        }
+        // Cập nhật vị trí nhân vật với kiểm tra va chạm
+        Vector2 newPosition = collisionHandler.moveWithCollisionCheck(playerBounds, deltaX, deltaY);
 
-        return canWalk;
+        // Cập nhật animation dựa trên hướng di chuyển
+        if (deltaX < 0) {
+            player.moveLeft(delta);
+        }
+        else if (deltaX > 0) {
+            player.moveRight(delta);
+        }
+        else if (deltaY > 0) {
+            player.moveUp(delta);
+        }
+        else if (deltaY < 0) {
+            player.moveDown(delta);
+        }
+
+        // Cập nhật vị trí cho player
+        player.setX(newPosition.x);
+        player.setY(newPosition.y);
     }
 }

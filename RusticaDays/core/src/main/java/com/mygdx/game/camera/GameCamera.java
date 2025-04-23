@@ -3,7 +3,7 @@ package com.mygdx.game.camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 
-public class GameCamera {
+public class GameCamera{
     private OrthographicCamera camera;
     private float viewportWidth;
     private float viewportHeight;
