@@ -3,13 +3,21 @@ package com.mygdx.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.input.PlayerInputHandler;
+import com.mygdx.game.inventory.InventoryManager;
 import com.mygdx.game.render.MapRenderer;
+import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
 
 public class GameLaucher extends ApplicationAdapter {
@@ -19,9 +27,11 @@ public class GameLaucher extends ApplicationAdapter {
     private Player player;
     private PlayerInputHandler inputHandler;
     private StatsBar statsBar;
-
+    private InventoryUI inventoryUI;
+    private InventoryManager inventoryManager;
+    private Stage uiStage;
+    private boolean showFullInventory = false;
     private ShapeRenderer shapeRenderer;
-    //Biến để lưu kích thước map
     private float mapWidth;
     private float mapHeight;
 
@@ -47,24 +57,32 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Thiết lập giới hạn map cho camera
         camera.setWorldBounds(mapWidth, mapHeight);
-
-        // Bật smooth camera
         camera.setSmoothCamera(true);
         camera.setLerpFactor(0.1f);
 
         // Khởi tạo Player
         player = new Player(300, 300, "Player.png");
 
-        // Khởi tạp nhận Input
+        // Input
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
 
-        // Khởi tạo StatsBar
-        statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // Stats Bar
+        statsBar = new StatsBar(batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+        // UI Stage
+        uiStage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(uiStage);
+
+        // Inventory Logic + UI
+        inventoryManager = new InventoryManager(42);
+        inventoryUI = new InventoryUI(uiStage, inventoryManager);
+        uiStage.addActor(inventoryUI.getQuickBar());
+      
         // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(500);
         statsBar.setExperience(0);
         statsBar.setStamina(100);
+
     }
 
     @Override
@@ -81,21 +99,18 @@ public class GameLaucher extends ApplicationAdapter {
         // Cập nhật di chuyển
         inputHandler.processInput(delta);
 
-        // Cập nhật tọa độ Player
+        // Cập nhật player
         player.update(delta);
 
         // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
-
-        // Camera follow Player
         camera.followTarget(player.getX(), player.getY());
 
-        // Clear screen
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
-        // Render map
+        // Vẽ map
         mapRenderer.render(camera.getCamera());
-
+      
         // Render debug collision nếu đang ở chế độ debug
         if (debugMode) {
             shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
@@ -108,46 +123,46 @@ public class GameLaucher extends ApplicationAdapter {
             shapeRenderer.end();
         }
 
-        // Render player
+        // Player
         batch.setProjectionMatrix(camera.getCamera().combined);
         batch.begin();
         player.render(batch);
         batch.end();
+      
+        // Kiểm tra nhấn phím I để toggle full inventory
+        if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+            inventoryUI.toggleInventory();
+        }
 
+        uiStage.act(delta);
+        uiStage.draw();
+      
         // Render StatsBar
         statsBar.render(batch);
     }
 
-    // Phương thức limit Player trong Map
     private void limitPlayerToMapBounds() {
         float playerX = player.getX();
         float playerY = player.getY();
         int frameWidth = (int) player.getBounds().width;
         int frameHeight = (int) player.getBounds().height;
 
-        // Giới hạn player trong phạm vi map
-        if (playerX < 0) {
-            player.setX(0);
-        }
-        if (playerY < 0) {
-            player.setY(0);
-        }
-        if (playerX + frameWidth > mapWidth) {
-            player.setX(mapWidth - frameWidth);
-        }
-        if (playerY + frameHeight > mapHeight) {
-            player.setY(mapHeight - frameHeight);
-        }
+        if (playerX < 0) player.setX(0);
+        if (playerY < 0) player.setY(0);
+        if (playerX + frameWidth > mapWidth) player.setX(mapWidth - frameWidth);
+        if (playerY + frameHeight > mapHeight) player.setY(mapHeight - frameHeight);
     }
 
     @Override
     public void resize(int width, int height) {
         // Điều chỉnh camera khi kích thước màn hình thay đổi
+
         float aspectRatio = (float) width / (float) height;
         float viewportWidth = 350;
         float viewportHeight = viewportWidth / aspectRatio;
         camera.resize(viewportWidth, viewportHeight);
         statsBar.resize(width, height);
+        uiStage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -156,6 +171,7 @@ public class GameLaucher extends ApplicationAdapter {
         player.dispose();
         mapRenderer.dispose();
         statsBar.dispose();
+        uiStage.dispose();
         shapeRenderer.dispose();
     }
 }
