@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mygdx.game.camera.GameCamera;
@@ -25,21 +27,21 @@ public class GameLaucher extends ApplicationAdapter {
     private Player player;
     private PlayerInputHandler inputHandler;
     private StatsBar statsBar;
-
-    // Inventory
     private InventoryUI inventoryUI;
     private InventoryManager inventoryManager;
     private Stage uiStage;
     private boolean showFullInventory = false;
-
-
-    // Biến để lưu kích thước map
+    private ShapeRenderer shapeRenderer;
     private float mapWidth;
     private float mapHeight;
+
+    // Biến để bật/tắt debug mode
+    private boolean debugMode = false;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
 
         // Khởi tạo Camera 480 360
         float viewportWidth = 434;
@@ -75,17 +77,32 @@ public class GameLaucher extends ApplicationAdapter {
         inventoryManager = new InventoryManager(42);
         inventoryUI = new InventoryUI(uiStage, inventoryManager);
         uiStage.addActor(inventoryUI.getQuickBar());
+      
+        // Thiết lập một số giá trị ban đầu cho StatsBar
+        statsBar.setMoney(500);
+        statsBar.setExperience(0);
+        statsBar.setStamina(100);
+
     }
 
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        // Input xử lý di chuyển nhân vật
+        // Bật/tắt debug mode khi nhấn F3
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
+            debugMode = !debugMode;
+            inputHandler.getCollisionHandler().setDebugRender(debugMode);
+            System.out.println("Debug mode: " + (debugMode ? "ON" : "OFF"));
+        }
+
+        // Cập nhật di chuyển
         inputHandler.processInput(delta);
 
         // Cập nhật player
         player.update(delta);
+
+        // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
         camera.followTarget(player.getX(), player.getY());
 
@@ -93,16 +110,25 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Vẽ map
         mapRenderer.render(camera.getCamera());
+      
+        // Render debug collision nếu đang ở chế độ debug
+        if (debugMode) {
+            shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
+            inputHandler.getCollisionHandler().renderCollisions(shapeRenderer);
 
-        // StatsBar
-        statsBar.render(batch);
+            // Vẽ hitbox của player
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(0, 1, 0, 1);
+            shapeRenderer.rect(player.getX(), player.getY(), player.getBounds().width, player.getBounds().height);
+            shapeRenderer.end();
+        }
 
         // Player
         batch.setProjectionMatrix(camera.getCamera().combined);
         batch.begin();
         player.render(batch);
         batch.end();
-
+      
         // Kiểm tra nhấn phím I để toggle full inventory
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
             inventoryUI.toggleInventory();
@@ -110,6 +136,9 @@ public class GameLaucher extends ApplicationAdapter {
 
         uiStage.act(delta);
         uiStage.draw();
+      
+        // Render StatsBar
+        statsBar.render(batch);
     }
 
     private void limitPlayerToMapBounds() {
@@ -126,6 +155,8 @@ public class GameLaucher extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
+        // Điều chỉnh camera khi kích thước màn hình thay đổi
+
         float aspectRatio = (float) width / (float) height;
         float viewportWidth = 350;
         float viewportHeight = viewportWidth / aspectRatio;
@@ -141,5 +172,6 @@ public class GameLaucher extends ApplicationAdapter {
         mapRenderer.dispose();
         statsBar.dispose();
         uiStage.dispose();
+        shapeRenderer.dispose();
     }
 }

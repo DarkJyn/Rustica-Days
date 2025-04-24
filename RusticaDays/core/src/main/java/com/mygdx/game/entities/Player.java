@@ -24,7 +24,7 @@ public class Player {
         // Khởi tạo bounds dựa trên kích thước của frame
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
-        this.bounds = new Rectangle(x, y, frameWidth, frameHeight);
+        this.bounds = new Rectangle(x, y, 10, 6);
     }
 
     public void update(float deltaTime) {
