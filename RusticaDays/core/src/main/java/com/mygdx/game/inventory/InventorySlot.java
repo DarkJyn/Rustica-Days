@@ -1,15 +1,21 @@
 package com.mygdx.game.inventory;
 
+import com.mygdx.game.items.base.Item;
+
 public class InventorySlot {
-    private InventoryItem item;
+    private Item item;
     private int quantity;
 
-    public void setItem(InventoryItem item, int quantity) {
-        this.item = item;
-        this.quantity = quantity;
+    public InventorySlot() {
+        this.item = null;
+        this.quantity = 0;
     }
 
-    public InventoryItem getItem() {
+    public boolean isEmpty() {
+        return item == null || quantity <= 0;
+    }
+
+    public Item getItem() {
         return item;
     }
 
@@ -17,12 +23,13 @@ public class InventorySlot {
         return quantity;
     }
 
+    public void setItem(Item item, int quantity) {
+        this.item = item;
+        this.quantity = quantity;
+    }
+
     public void clear() {
         this.item = null;
         this.quantity = 0;
-    }
-
-    public boolean isEmpty() {
-        return item == null;
     }
 }
