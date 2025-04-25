@@ -1,5 +1,6 @@
 package com.mygdx.game.inventory;
 
+import com.mygdx.game.items.base.Item;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,16 @@ public class InventoryManager {
         return slots;
     }
 
-    public void addItem(InventoryItem item, int quantity) {
+    public void addItem(Item item, int quantity) {
+        // Trước tiên, thử thêm vào slot đã có item cùng loại để stack
+        for (InventorySlot slot : slots) {
+            if (!slot.isEmpty() && slot.getItem().canStackWith(item)) {
+                slot.setItem(slot.getItem(), slot.getQuantity() + quantity);
+                return;
+            }
+        }
+
+        // Nếu không thể stack, tìm slot trống
         for (InventorySlot slot : slots) {
             if (slot.isEmpty()) {
                 slot.setItem(item, quantity);
@@ -27,7 +37,7 @@ public class InventoryManager {
         // Optionally handle full inventory
     }
 
-    public void removeItem(InventoryItem item) {
+    public void removeItem(Item item) {
         for (InventorySlot slot : slots) {
             if (!slot.isEmpty() && slot.getItem().equals(item)) {
                 slot.clear();
@@ -35,4 +45,18 @@ public class InventoryManager {
             }
         }
     }
+
+    public void removeItemQuantity(Item item, int quantity) {
+        for (InventorySlot slot : slots) {
+            if (!slot.isEmpty() && slot.getItem().equals(item)) {
+                if (slot.getQuantity() <= quantity) {
+                    slot.clear();
+                } else {
+                    slot.setItem(slot.getItem(), slot.getQuantity() - quantity);
+                }
+                return;
+            }
+        }
+    }
 }
+

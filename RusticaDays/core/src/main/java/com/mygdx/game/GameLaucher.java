@@ -12,10 +12,23 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
+import com.mygdx.game.entities.plants.PlantManager;
 import com.mygdx.game.input.PlayerInputHandler;
 import com.mygdx.game.inventory.InventoryManager;
+import com.mygdx.game.inventory.InventorySlot;
+import com.mygdx.game.items.base.Item;
+import com.mygdx.game.items.seeds.Seed;
+import com.mygdx.game.items.seeds.TomatoSeed;
+import com.mygdx.game.items.seeds.CarrotSeed;
+import com.mygdx.game.items.seeds.CornSeed;
+import com.mygdx.game.items.seeds.RiceSeed;
+import com.mygdx.game.items.seeds.EggplantSeed;
 import com.mygdx.game.render.MapRenderer;
 import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
@@ -34,6 +47,15 @@ public class GameLaucher extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private float mapWidth;
     private float mapHeight;
+
+    // Quản lý cây trồng
+    private PlantManager plantManager;
+
+    // Biến phục vụ cho tương tác trồng cây
+    private boolean plantMode = false;
+    private boolean waterMode = false;
+    private boolean harvestMode = false;
+    private int selectedSlotIndex = 0;
 
     // Biến để bật/tắt debug mode
     private boolean debugMode = false;
@@ -83,6 +105,31 @@ public class GameLaucher extends ApplicationAdapter {
         statsBar.setExperience(0);
         statsBar.setStamina(100);
 
+        // Khởi tạo PlantManager
+        plantManager = new PlantManager(inventoryManager);
+
+        // Thêm các mặt hàng vào inventory cho test
+        addInitialItems();
+    }
+
+    private void addInitialItems() {
+        // Tạo các mặt hàng hạt giống sử dụng constructor mặc định
+        TomatoSeed tomatoSeed = new TomatoSeed();
+        CarrotSeed carrotSeed = new CarrotSeed();
+        CornSeed cornSeed = new CornSeed();
+        RiceSeed riceSeed = new RiceSeed();
+        EggplantSeed eggplantSeed = new EggplantSeed();
+
+        // Thêm hạt giống vào inventory
+        inventoryManager.addItem(tomatoSeed, 1);
+        inventoryManager.addItem(carrotSeed, 7);
+        inventoryManager.addItem(cornSeed, 1);
+        inventoryManager.addItem(riceSeed, 1);
+        inventoryManager.addItem(eggplantSeed, 5);
+        inventoryManager.addItem(eggplantSeed, 5);
+
+        // Cập nhật UI sau khi thêm vật phẩm
+        inventoryUI.updateUI();
     }
 
     @Override
@@ -101,6 +148,11 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Cập nhật player
         player.update(delta);
+
+        // Cập nhật cây trồng
+        if (plantManager != null) {
+            plantManager.update(delta);
+        }
 
         // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
@@ -127,6 +179,12 @@ public class GameLaucher extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.getCamera().combined);
         batch.begin();
         player.render(batch);
+
+        // Render cây trồng
+        if (plantManager != null) {
+            plantManager.render(batch);
+        }
+
         batch.end();
 
         // Kiểm tra nhấn phím I để toggle full inventory
@@ -134,11 +192,104 @@ public class GameLaucher extends ApplicationAdapter {
             inventoryUI.toggleInventory();
         }
 
+        // Xử lý tương tác với cây trồng
+        handleFarmingInput();
+
         uiStage.act(delta);
         uiStage.draw();
 
         // Render StatsBar
         statsBar.render(batch);
+    }
+
+    private void handleFarmingInput() {
+        // Chuyển đổi chế độ
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            plantMode = true;
+            waterMode = false;
+            harvestMode = false;
+            System.out.println("Plant mode activated");
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+            plantMode = false;
+            waterMode = true;
+            harvestMode = false;
+            System.out.println("Water mode activated");
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
+            plantMode = false;
+            waterMode = false;
+            harvestMode = true;
+            System.out.println("Harvest mode activated");
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            plantMode = waterMode = harvestMode = false;
+            System.out.println("Farming modes deactivated");
+        }
+
+        // Lựa chọn slot (1-6 cho quickbar)
+        for (int i = 0; i < 6; i++) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1 + i)) {
+                selectedSlotIndex = i;
+                System.out.println("Selected slot " + (selectedSlotIndex + 1));
+            }
+        }
+
+        // Xử lý click chuột
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            Vector3 worldCoordinates = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.getCamera().unproject(worldCoordinates);
+
+            // Tọa độ chuột trong thế giới
+            float mouseWorldX = worldCoordinates.x;
+            float mouseWorldY = worldCoordinates.y;
+
+            if (plantMode) {
+                tryPlantSeed(mouseWorldX, mouseWorldY);
+            } else if (waterMode) {
+                tryWaterPlant(mouseWorldX, mouseWorldY);
+            } else if (harvestMode) {
+                tryHarvestPlant(mouseWorldX, mouseWorldY);
+            }
+        }
+    }
+
+    private void tryPlantSeed(float x, float y) {
+        // Kiểm tra xem slot đang chọn có phải là hạt giống không
+        if (selectedSlotIndex < inventoryManager.getSlots().size()) {
+            InventorySlot slot = inventoryManager.getSlots().get(selectedSlotIndex);
+            if (!slot.isEmpty()) {
+                Item item = slot.getItem();
+                if (item instanceof Seed) {
+                    Seed seed = (Seed) item;
+                    boolean planted = plantManager.plantSeed(seed, x, y);
+                    if (planted) {
+                        System.out.println("Planted " + seed.getName() + " at " + x + ", " + y);
+                    } else {
+                        System.out.println("Cannot plant here");
+                    }
+                } else {
+                    System.out.println("Selected item is not a seed");
+                }
+            } else {
+                System.out.println("No item in selected slot");
+            }
+        }
+    }
+
+    private void tryWaterPlant(float x, float y) {
+        boolean watered = plantManager.waterPlant(x, y);
+        if (watered) {
+            System.out.println("Watered plant at " + x + ", " + y);
+        } else {
+            System.out.println("No plant to water at this position or plant doesn't need water");
+        }
+    }
+
+    private void tryHarvestPlant(float x, float y) {
+        boolean harvested = plantManager.harvestPlant(x, y);
+        if (harvested) {
+            System.out.println("Harvested plant at " + x + ", " + y);
+        } else {
+            System.out.println("No plant to harvest at this position or plant is not ready");
+        }
     }
 
     private void limitPlayerToMapBounds() {
@@ -171,6 +322,7 @@ public class GameLaucher extends ApplicationAdapter {
         player.dispose();
         mapRenderer.dispose();
         statsBar.dispose();
+        inventoryUI.dispose();
         uiStage.dispose();
         shapeRenderer.dispose();
     }
