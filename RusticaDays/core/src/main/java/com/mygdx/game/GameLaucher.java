@@ -67,7 +67,7 @@ public class GameLaucher extends ApplicationAdapter {
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
 
         // Stats Bar
-        statsBar = new StatsBar(batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // UI Stage
         uiStage = new Stage(new ScreenViewport());
@@ -77,7 +77,7 @@ public class GameLaucher extends ApplicationAdapter {
         inventoryManager = new InventoryManager(42);
         inventoryUI = new InventoryUI(uiStage, inventoryManager);
         uiStage.addActor(inventoryUI.getQuickBar());
-      
+
         // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(500);
         statsBar.setExperience(0);
@@ -110,7 +110,7 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Vẽ map
         mapRenderer.render(camera.getCamera());
-      
+
         // Render debug collision nếu đang ở chế độ debug
         if (debugMode) {
             shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
@@ -128,7 +128,7 @@ public class GameLaucher extends ApplicationAdapter {
         batch.begin();
         player.render(batch);
         batch.end();
-      
+
         // Kiểm tra nhấn phím I để toggle full inventory
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
             inventoryUI.toggleInventory();
@@ -136,7 +136,7 @@ public class GameLaucher extends ApplicationAdapter {
 
         uiStage.act(delta);
         uiStage.draw();
-      
+
         // Render StatsBar
         statsBar.render(batch);
     }
