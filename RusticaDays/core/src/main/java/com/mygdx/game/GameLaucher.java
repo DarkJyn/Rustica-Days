@@ -204,6 +204,8 @@ public class GameLaucher extends ApplicationAdapter {
         shopkeeper.render(batch);
         batch.end();
 
+        batch.begin();
+        
         // Render cây trồng
         if (plantManager != null) {
             plantManager.render(batch);
