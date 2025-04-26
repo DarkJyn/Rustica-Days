@@ -20,6 +20,7 @@ import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.entities.plants.PlantManager;
 import com.mygdx.game.input.PlayerInputHandler;
+import com.mygdx.game.entities.NPC;
 import com.mygdx.game.inventory.InventoryManager;
 import com.mygdx.game.inventory.InventorySlot;
 import com.mygdx.game.items.base.Item;
@@ -38,6 +39,7 @@ public class GameLaucher extends ApplicationAdapter {
     private GameCamera camera;
     private MapRenderer mapRenderer;
     private Player player;
+    private NPC shopkeeper;
     private PlayerInputHandler inputHandler;
     private StatsBar statsBar;
     private InventoryUI inventoryUI;
@@ -84,9 +86,12 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Khởi tạo Player
         player = new Player(300, 300, "Player.png");
+        // Khởi tạo NPC
+        shopkeeper = new NPC(343, 455, "NPC.png");
 
-        // Input
+        // Khởi tạp nhận Input
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
+        inputHandler.registerNPC(shopkeeper);
 
         // Stats Bar
         statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -102,9 +107,9 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(500);
-        statsBar.setExperience(0);
+        statsBar.setExperience(50);
         statsBar.setStamina(100);
-
+      
         // Khởi tạo PlantManager
         plantManager = new PlantManager(inventoryManager);
 
@@ -143,8 +148,10 @@ public class GameLaucher extends ApplicationAdapter {
             System.out.println("Debug mode: " + (debugMode ? "ON" : "OFF"));
         }
 
+
+
         // Cập nhật di chuyển
-        inputHandler.processInput(delta);
+//        inputHandler.processInput(delta);
 
         // Cập nhật player
         player.update(delta);
@@ -156,12 +163,27 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
+
+        // Chỉ xử lý input khi không đang tương tác trong cửa hàng
+        if (!inputHandler.isInteractingWithNPC() ||
+            (inputHandler.getInteractingNPC() != null && !inputHandler.getInteractingNPC().isShopOpen())) {
+            // Xử lý input
+            inputHandler.processInput(delta);
+        } else {
+            // Nếu đang trong cửa hàng, chỉ xử lý input liên quan đến NPC
+            inputHandler.handleNPCInteraction();
+        }
+
+        // Camera follow Player
         camera.followTarget(player.getX(), player.getY());
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
         // Vẽ map
         mapRenderer.render(camera.getCamera());
+
+        // Render StatsBar
+        statsBar.render(batch);
 
         // Render debug collision nếu đang ở chế độ debug
         if (debugMode) {
@@ -179,6 +201,8 @@ public class GameLaucher extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.getCamera().combined);
         batch.begin();
         player.render(batch);
+        shopkeeper.render(batch);
+        batch.end();
 
         // Render cây trồng
         if (plantManager != null) {
@@ -197,9 +221,6 @@ public class GameLaucher extends ApplicationAdapter {
 
         uiStage.act(delta);
         uiStage.draw();
-
-        // Render StatsBar
-        statsBar.render(batch);
     }
 
     private void handleFarmingInput() {
@@ -320,6 +341,7 @@ public class GameLaucher extends ApplicationAdapter {
     public void dispose() {
         batch.dispose();
         player.dispose();
+        shopkeeper.dispose();
         mapRenderer.dispose();
         statsBar.dispose();
         inventoryUI.dispose();
