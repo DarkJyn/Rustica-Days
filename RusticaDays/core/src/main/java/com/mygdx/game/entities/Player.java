@@ -111,4 +111,10 @@ public class Player {
     public void dispose() {
         animationManager.dispose();
     }
+    public float getWidth() {
+        return animationManager.getFrameWidth();
+    }
+    public float getHeight() {
+        return animationManager.getFrameHeight();
+    }
 }

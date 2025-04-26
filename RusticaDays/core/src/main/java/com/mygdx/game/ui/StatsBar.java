@@ -149,7 +149,7 @@ public class StatsBar {
         shapeRenderer.rect(PADDING + 80, viewport.getWorldHeight() - PADDING * 3 - BAR_HEIGHT * 3, BAR_WIDTH, BAR_HEIGHT + 3);
 
         // Foreground (actual experience)
-        shapeRenderer.setColor(Color.BLUE);
+        shapeRenderer.setColor(Color.CYAN);
         float expWidth = ((float)experience / maxExperience) * BAR_WIDTH;
         shapeRenderer.rect(PADDING + 80, viewport.getWorldHeight() - PADDING * 3 - BAR_HEIGHT * 3, expWidth, BAR_HEIGHT + 3);
         shapeRenderer.end();
