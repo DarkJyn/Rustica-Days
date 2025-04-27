@@ -34,7 +34,7 @@ public class Carrot extends Plant {
     @Override
     protected void initTextures() {
         try {
-            Texture carrotSheet = new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Carrot.png"));
+            Texture carrotSheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Carrot.png"));
 
             int frameCount = GrowthState.values().length;
             int frameWidth = carrotSheet.getWidth() / frameCount;
@@ -60,7 +60,7 @@ public class Carrot extends Plant {
         // Tạo texture đơn giản cho mỗi giai đoạn
         for (GrowthState state : GrowthState.values()) {
             TextureRegion[] frames = new TextureRegion[1];
-            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/CarrotSeed.png")));
+            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/CarrotSeed.png")));
             growthTextures.put(state, frames);
         }
     }

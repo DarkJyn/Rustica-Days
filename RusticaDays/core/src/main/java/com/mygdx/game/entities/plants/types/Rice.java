@@ -34,7 +34,7 @@ public class Rice extends Plant {
     @Override
     protected void initTextures() {
         try {
-            Texture riceSheet = new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Rice.png"));
+            Texture riceSheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Rice.png"));
 
             int frameCount = GrowthState.values().length;
             int frameWidth = riceSheet.getWidth() / frameCount;
@@ -60,7 +60,7 @@ public class Rice extends Plant {
         // Tạo texture đơn giản cho mỗi giai đoạn
         for (GrowthState state : GrowthState.values()) {
             TextureRegion[] frames = new TextureRegion[1];
-            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/RiceSeed.png")));
+            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/RiceSeed.png")));
             growthTextures.put(state, frames);
         }
     }
