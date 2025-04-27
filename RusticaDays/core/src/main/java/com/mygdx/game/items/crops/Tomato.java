@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
  */
 public class Tomato extends Harvest {
 
-    private static final String TEXTURE_PATH = "crops/Tomato1.png";
+    private static final String TEXTURE_PATH = "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Tomato1.png";
 
     public Tomato(String name, int price, int quantity) {
         super(name, price, TEXTURE_PATH);

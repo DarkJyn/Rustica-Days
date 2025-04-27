@@ -34,7 +34,7 @@ public class Tomato extends Plant {
     @Override
     protected void initTextures() {
         try {
-            Texture tomatoSheet = new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Tomato.png"));
+            Texture tomatoSheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Tomato.png"));
 
             int frameCount = GrowthState.values().length;
             int frameWidth = tomatoSheet.getWidth() / frameCount;
@@ -60,7 +60,7 @@ public class Tomato extends Plant {
         // Tạo texture đơn giản cho mỗi giai đoạn
         for (GrowthState state : GrowthState.values()) {
             TextureRegion[] frames = new TextureRegion[1];
-            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/TomatoSeed.png")));
+            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/TomatoSeed.png")));
             growthTextures.put(state, frames);
         }
     }

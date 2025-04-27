@@ -109,7 +109,7 @@ public class GameLaucher extends ApplicationAdapter {
         statsBar.setMoney(500);
         statsBar.setExperience(50);
         statsBar.setStamina(100);
-      
+
         // Khởi tạo PlantManager
         plantManager = new PlantManager(inventoryManager);
 
@@ -205,7 +205,6 @@ public class GameLaucher extends ApplicationAdapter {
         batch.end();
 
         batch.begin();
-        
         // Render cây trồng
         if (plantManager != null) {
             plantManager.render(batch);
@@ -232,7 +231,7 @@ public class GameLaucher extends ApplicationAdapter {
             waterMode = false;
             harvestMode = false;
             System.out.println("Plant mode activated");
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
             plantMode = false;
             waterMode = true;
             harvestMode = false;
