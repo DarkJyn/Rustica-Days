@@ -7,12 +7,14 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.ui.ShopUI;
 
 public class NPC extends Sprite {
     private boolean isInteractable;
     private boolean isShowingDialog;
     private boolean isShopOpen;
+    private GameCamera camera;
     private Rectangle interactionZone;  // Vùng xung quanh NPC để kiểm tra tương tác
     private BitmapFont font;
     private ShapeRenderer shapeRenderer;
@@ -24,12 +26,12 @@ public class NPC extends Sprite {
     private Animation<TextureRegion> fButtonAnimation;
     private float stateTime;
 
-    public NPC( float x, float y, String spritesheetPath) {
+    public NPC( float x, float y, String spritesheetPath, GameCamera gameCamera) {
         super(new Texture(spritesheetPath));
         this.setPosition(x, y);
-
+        camera = gameCamera;
         // Tạo vùng tương tác xung quanh NPC
-        this.interactionZone = new Rectangle(x, y, getWidth() + 20, getHeight() + 20);
+        this.interactionZone = new Rectangle(x, y, getWidth() + 50, getHeight() + 50);
         this.isInteractable = false;
         this.isShowingDialog = false;
         this.isShopOpen = false;
@@ -73,7 +75,7 @@ public class NPC extends Sprite {
             }
         }
 
-        currentFrame = fButtonAnimation.getKeyFrame(stateTime, true);
+        currentFrame = fButtonAnimation.getKeyFrame(stateTime * 2, true);
 
     }
 
@@ -84,15 +86,16 @@ public class NPC extends Sprite {
         // Hiển thị biểu tượng tương tác nếu player đang ở gần
         if (isInteractable && !isShowingDialog && !isShopOpen) {
             batch.end();
+            batch.setProjectionMatrix(camera.getCamera().combined);
             batch.begin();
-            batch.draw(currentFrame, getX() + 1, getY() + 20, getWidth(), getHeight());
+            batch.draw(currentFrame, getX(), getY() + 12, getWidth(), getHeight());
         }
 
         // Hiển thị hộp thoại nếu đang tương tác
         if (isShowingDialog && !isShopOpen){
             batch.end();
             batch.begin();
-            batch.draw(npcHelloTextBox, getX() - 190, getY() - 130, getWidth() * 20, getHeight() * 8);
+            batch.draw(npcHelloTextBox, getX() - 300, getY() - 400, getWidth() * 70, getHeight() * 28);
         }
 
         // Hiển thị cửa hàng
