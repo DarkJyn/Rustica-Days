@@ -30,10 +30,19 @@ public class InventoryUI {
     private Stage uiStage;
     private Texture slotTexture;
     private BitmapFont font;
+    private SlotSelectionListener slotSelectionListener;
+
+    public interface SlotSelectionListener {
+        void onSlotSelected(int slotIndex);
+    }
+
+    public void setSlotSelectionListener(SlotSelectionListener listener) {
+        this.slotSelectionListener = listener;
+    }
 
     public InventoryUI(Stage stage, InventoryManager inventoryManager) {
         this.inventoryManager = inventoryManager;
-        this.dragHandler = new DragAndDropHandler(stage, inventoryManager);
+        this.dragHandler = new DragAndDropHandler(stage, inventoryManager, this);
         this.uiStage = stage;
 
         // Tải texture slot một lần duy nhất
@@ -132,6 +141,17 @@ public class InventoryUI {
         slotStack.setUserObject(index); // Lưu index của slot vào userObject để truy xuất khi cần
         dragHandler.addSource(slotStack, index);
         dragHandler.addTarget(slotStack, index);
+
+        // Thêm sự kiện click để chọn slot
+        slotStack.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+            @Override
+            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                if (slotSelectionListener != null) {
+                    slotSelectionListener.onSlotSelected(index);
+                }
+                return true;
+            }
+        });
 
         return slotStack;
     }

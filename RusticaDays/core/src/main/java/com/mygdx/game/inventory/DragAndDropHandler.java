@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Payload;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Source;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.mygdx.game.items.base.Item;
+import com.mygdx.game.ui.InventoryUI;
 
 /**
  * Xử lý kéo thả cho hệ thống túi đồ
@@ -19,6 +20,7 @@ public class DragAndDropHandler {
     private final DragAndDrop dragAndDrop;
     private final Stage stage;
     private final InventoryManager inventoryManager;
+    private final InventoryUI inventoryUI;
 
     /**
      * Khởi tạo handler kéo thả
@@ -26,16 +28,18 @@ public class DragAndDropHandler {
     public DragAndDropHandler(Stage stage) {
         this.dragAndDrop = new DragAndDrop();
         this.stage = stage;
-        this.inventoryManager = null; // Không thực hiện swap items
+        this.inventoryManager = null;
+        this.inventoryUI = null;
     }
 
     /**
      * Khởi tạo handler kéo thả với InventoryManager
      */
-    public DragAndDropHandler(Stage stage, InventoryManager inventoryManager) {
+    public DragAndDropHandler(Stage stage, InventoryManager inventoryManager, InventoryUI inventoryUI) {
         this.dragAndDrop = new DragAndDrop();
         this.stage = stage;
         this.inventoryManager = inventoryManager;
+        this.inventoryUI = inventoryUI;
     }
 
     /**
@@ -120,6 +124,10 @@ public class DragAndDropHandler {
                             sourceSlot.setItem(targetItem, targetQuantity);
                             targetSlot.setItem(sourceItem, sourceQuantity);
                         }
+                    }
+                    // Sau khi drop, cập nhật lại UI
+                    if (inventoryUI != null) {
+                        inventoryUI.updateUI();
                     }
                 }
             }

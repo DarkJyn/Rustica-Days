@@ -36,22 +36,20 @@ public class Tomato extends Plant {
         try {
             Texture tomatoSheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Tomato.png"));
 
-            int frameCount = GrowthState.values().length;
-            int frameWidth = tomatoSheet.getWidth() / frameCount;
+            int sheetFrames = 7; // 7 trạng thái trên ảnh
+            int[] mapping = {0, 2, 3, 4, 5, 6}; // Bỏ qua frame 1 (index 1)
+            int frameWidth = tomatoSheet.getWidth() / sheetFrames;
             int frameHeight = tomatoSheet.getHeight();
 
-            for (int i = 0; i < frameCount; i++) {
-                // Cắt từng vùng theo chỉ số cột i
-                TextureRegion region = new TextureRegion(tomatoSheet, i * frameWidth, 0, frameWidth, frameHeight);
-
+            GrowthState[] states = GrowthState.values();
+            for (int i = 0; i < states.length; i++) {
+                int frameIdx = (i < mapping.length) ? mapping[i] : mapping[mapping.length-1];
+                TextureRegion region = new TextureRegion(tomatoSheet, frameIdx * frameWidth, 0, frameWidth, frameHeight);
                 TextureRegion[] frames = new TextureRegion[] { region };
-
-                GrowthState state = GrowthState.values()[i];
-                growthTextures.put(state, frames);
+                growthTextures.put(states[i], frames);
             }
         } catch (Exception e) {
             System.err.println("Could not load Tomato texture: " + e.getMessage());
-            // Tạo texture mặc định
             createDefaultTexture();
         }
     }
@@ -60,7 +58,7 @@ public class Tomato extends Plant {
         // Tạo texture đơn giản cho mỗi giai đoạn
         for (GrowthState state : GrowthState.values()) {
             TextureRegion[] frames = new TextureRegion[1];
-            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/TomatoSeed.png")));
+            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/TomatoSeed.png")));
             growthTextures.put(state, frames);
         }
     }

@@ -7,6 +7,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.mygdx.game.entities.plants.states.GrowthState;
 import com.mygdx.game.items.crops.Harvest;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 
 /**
  * Lớp cơ sở cho tất cả các loại cây trồng trong game.
@@ -19,7 +25,7 @@ public abstract class Plant {
     protected float growthTimer;                         // Bộ đếm thời gian phát triển
     protected ObjectMap<GrowthState, Float> stageGrowthTimes;  // Thời gian phát triển cần thiết cho từng giai đoạn
     protected boolean needsWater;                        // Cây có cần được tưới không
-    protected float waterTimer;                          // Thời gian từ lần tưới gần nhất (có thể dùng cho visual hoặc sau này)
+    protected float waterTimer;                          // Thời gian từ lần tưới gần nhất
 
     protected ObjectMap<GrowthState, TextureRegion[]> growthTextures; // Texture theo từng giai đoạn
 
@@ -28,6 +34,14 @@ public abstract class Plant {
     protected int currentAnimationFrame;
     protected static final int ANIMATION_FRAMES = 4;      // Số frame cho hoạt ảnh
     protected static final float FRAME_DURATION = 0.25f;  // Thời gian mỗi frame
+
+    // Biến phục vụ hiển thị đếm ngược
+    protected boolean showCountdown = false;
+    protected static final float COUNTDOWN_DISPLAY_DURATION = 2f; // 1 giây hiển thị
+    protected long countdownEndTimeMillis = 0; // Thời điểm kết thúc hiển thị
+    public static BitmapFont countdownFont = null;
+    protected static GlyphLayout glyphLayout = new GlyphLayout();
+    protected float countdownDisplayTimer = 0f;
 
     /**
      * Tạo mới một cây trồng với tọa độ và kích thước cụ thể.
@@ -46,6 +60,21 @@ public abstract class Plant {
 
         initGrowthTimes();   // Thiết lập thời gian cho từng giai đoạn phát triển
         initTextures();      // Thiết lập texture cho từng giai đoạn
+
+        // Khởi tạo font cho đếm ngược nếu chưa có
+        if (countdownFont == null) {
+            initCountdownFont();
+        }
+    }
+
+    /**
+     * Khởi tạo font hiển thị đếm ngược
+     */
+    private static void initCountdownFont() {
+        countdownFont = new BitmapFont(); // giống inventory
+        countdownFont.setColor(Color.WHITE);
+        countdownFont.getData().setScale(0.3f); // tăng size cho dễ đọc
+        glyphLayout = new GlyphLayout();
     }
 
     /**
@@ -135,6 +164,75 @@ public abstract class Plant {
     }
 
     /**
+     * Vẽ thông tin đếm ngược sau khi vẽ cây để đảm bảo hiển thị trên cây
+     */
+    public void renderCountdown(SpriteBatch batch) {
+        if (!isVisible() || !showCountdown) {
+            return;
+        }
+
+        String text;
+        Color textColor = new Color(1, 1, 1, 1); // Mặc định màu trắng
+
+        // Xác định nội dung và màu sắc dựa vào trạng thái
+        if (growthState == GrowthState.MATURE) {
+            text = "Thu hoạch!";
+            textColor = new Color(0, 1, 0, 1); // Màu xanh lá
+        } else if (growthState == GrowthState.HARVESTED) {
+            return; // Không hiện gì cho cây đã thu hoạch
+        } else {
+            // Đối với các cây chưa trưởng thành, hiển thị thời gian
+            float timeRemaining = calculateTimeToHarvest();
+            int minutes = (int) (timeRemaining / 60);
+            int seconds = (int) (timeRemaining % 60);
+            text = String.format("%02d:%02d", minutes, seconds);
+        }
+
+        // Vẽ text
+        countdownFont.setColor(textColor);
+        glyphLayout.setText(countdownFont, text);
+        float textX = bounds.x + bounds.width / 2 - glyphLayout.width / 2;
+        float textY = bounds.y + bounds.height + glyphLayout.height - 2;
+        countdownFont.draw(batch, text, textX, textY);
+    }
+
+    /**
+     * Tính toán tổng thời gian còn lại đến khi thu hoạch
+     */
+    public float calculateTimeToHarvest() {
+        float remaining = 0;
+
+        // Tính thời gian còn lại ở giai đoạn hiện tại
+        Float currentStageTime = stageGrowthTimes.get(growthState);
+        if (currentStageTime != null) {
+            remaining += Math.max(0, currentStageTime - growthTimer);
+        }
+
+        // Tính thời gian cho các giai đoạn tiếp theo (nếu có)
+        GrowthState[] states = GrowthState.values();
+        for (int i = growthState.ordinal() + 1; i < states.length; i++) {
+            if (states[i] == GrowthState.MATURE || states[i] == GrowthState.HARVESTED) {
+                break;
+            }
+            Float stageTime = stageGrowthTimes.get(states[i]);
+            if (stageTime != null) {
+                remaining += stageTime;
+            }
+        }
+
+        return remaining;
+    }
+
+    /**
+     * Kích hoạt hiển thị đếm ngược
+     */
+    public void toggleCountdownDisplay() {
+        showCountdown = true;
+        countdownDisplayTimer = 0f;
+        System.out.println("Toggle countdown: " + this + " at " + System.currentTimeMillis());
+    }
+
+    /**
      * Lấy frame texture hiện tại dựa trên trạng thái phát triển.
      */
     protected TextureRegion getGrowthTexture() {
@@ -187,4 +285,16 @@ public abstract class Plant {
     }
 
     public int getCurrentAnimationFrame() { return currentAnimationFrame; }
+
+    public void updateCountdown(float deltaTime) {
+        if (showCountdown) {
+            countdownDisplayTimer += deltaTime;
+            System.out.println("Update countdown: " + this + " timer=" + countdownDisplayTimer);
+            if (countdownDisplayTimer >= COUNTDOWN_DISPLAY_DURATION) {
+                showCountdown = false;
+                countdownDisplayTimer = 0f;
+                System.out.println("Hide countdown: " + this + " at " + System.currentTimeMillis());
+            }
+        }
+    }
 }

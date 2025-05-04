@@ -34,24 +34,19 @@ public class Carrot extends Plant {
     @Override
     protected void initTextures() {
         try {
-            Texture carrotSheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Carrot.png"));
-
-            int frameCount = GrowthState.values().length;
-            int frameWidth = carrotSheet.getWidth() / frameCount;
-            int frameHeight = carrotSheet.getHeight();
-
-            for (int i = 0; i < frameCount; i++) {
-                // Cắt từng vùng theo chỉ số cột i
-                TextureRegion region = new TextureRegion(carrotSheet, i * frameWidth, 0, frameWidth, frameHeight);
-
-                TextureRegion[] frames = new TextureRegion[] { region };
-
-                GrowthState state = GrowthState.values()[i];
-                growthTextures.put(state, frames);
+            Texture sheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Carrot.png"));
+            int sheetFrames = 7;
+            int frameWidth = sheet.getWidth() / sheetFrames;
+            int frameHeight = sheet.getHeight();
+            GrowthState[] states = GrowthState.values();
+            for (int i = 0; i < states.length; i++) {
+                int frameIdx = (i == 0) ? 0 : i + 1;
+                if (frameIdx >= sheetFrames) frameIdx = sheetFrames - 1;
+                TextureRegion region = new TextureRegion(sheet, frameIdx * frameWidth, 0, frameWidth, frameHeight);
+                growthTextures.put(states[i], new TextureRegion[]{region});
             }
         } catch (Exception e) {
             System.err.println("Could not load Carrot texture: " + e.getMessage());
-            // Tạo texture mặc định
             createDefaultTexture();
         }
     }

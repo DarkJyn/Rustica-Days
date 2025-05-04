@@ -34,24 +34,19 @@ public class Corn extends Plant {
     @Override
     protected void initTextures() {
         try {
-            Texture cornSheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Corn.png"));
-
-            int frameCount = GrowthState.values().length;
-            int frameWidth = cornSheet.getWidth() / frameCount;
-            int frameHeight = cornSheet.getHeight();
-
-            for (int i = 0; i < frameCount; i++) {
-                // Cắt từng vùng theo chỉ số cột i
-                TextureRegion region = new TextureRegion(cornSheet, i * frameWidth, 0, frameWidth, frameHeight);
-
-                TextureRegion[] frames = new TextureRegion[] { region };
-
-                GrowthState state = GrowthState.values()[i];
-                growthTextures.put(state, frames);
+            Texture sheet = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/Corn.png"));
+            int sheetFrames = 7;
+            int frameWidth = sheet.getWidth() / sheetFrames;
+            int frameHeight = sheet.getHeight();
+            GrowthState[] states = GrowthState.values();
+            for (int i = 0; i < states.length; i++) {
+                int frameIdx = (i == 0) ? 0 : i + 1;
+                if (frameIdx >= sheetFrames) frameIdx = sheetFrames - 1;
+                TextureRegion region = new TextureRegion(sheet, frameIdx * frameWidth, 0, frameWidth, frameHeight);
+                growthTextures.put(states[i], new TextureRegion[]{region});
             }
         } catch (Exception e) {
             System.err.println("Could not load Corn texture: " + e.getMessage());
-            // Tạo texture mặc định
             createDefaultTexture();
         }
     }
@@ -60,7 +55,7 @@ public class Corn extends Plant {
         // Tạo texture đơn giản cho mỗi giai đoạn
         for (GrowthState state : GrowthState.values()) {
             TextureRegion[] frames = new TextureRegion[1];
-            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/CornSeed.png")));
+            frames[0] = new TextureRegion(new Texture(Gdx.files.internal("assets/[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/CornSeed.png")));
             growthTextures.put(state, frames);
         }
     }

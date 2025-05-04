@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
+import com.mygdx.game.entities.animations.WateringEffect;
 import com.mygdx.game.entities.plants.PlantManager;
 import com.mygdx.game.input.PlayerInputHandler;
 import com.mygdx.game.entities.NPC;
@@ -30,9 +31,13 @@ import com.mygdx.game.items.seeds.CarrotSeed;
 import com.mygdx.game.items.seeds.CornSeed;
 import com.mygdx.game.items.seeds.RiceSeed;
 import com.mygdx.game.items.seeds.EggplantSeed;
+import com.mygdx.game.items.tools.WateringCan;
 import com.mygdx.game.render.MapRenderer;
 import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class GameLaucher extends ApplicationAdapter {
     private SpriteBatch batch;
@@ -54,13 +59,13 @@ public class GameLaucher extends ApplicationAdapter {
     private PlantManager plantManager;
 
     // Biến phục vụ cho tương tác trồng cây
-    private boolean plantMode = false;
-    private boolean waterMode = false;
-    private boolean harvestMode = false;
-    private int selectedSlotIndex = 0;
+    private int selectedSlotIndex = -1;
 
     // Biến để bật/tắt debug mode
     private boolean debugMode = false;
+
+    // Danh sách hiệu ứng tưới nước
+    private ArrayList<WateringEffect> wateringEffects = new ArrayList<>();
 
     @Override
     public void create() {
@@ -105,6 +110,20 @@ public class GameLaucher extends ApplicationAdapter {
         inventoryUI = new InventoryUI(uiStage, inventoryManager);
         uiStage.addActor(inventoryUI.getQuickBar());
 
+        // Đăng ký callback chọn slot
+        inventoryUI.setSlotSelectionListener(new InventoryUI.SlotSelectionListener() {
+            @Override
+            public void onSlotSelected(int slotIndex) {
+                if (selectedSlotIndex == slotIndex) {
+                    selectedSlotIndex = -1;
+                    System.out.println("Unselected slot");
+                } else {
+                    selectedSlotIndex = slotIndex;
+                    System.out.println("Selected slot " + (selectedSlotIndex + 1));
+                }
+            }
+        });
+
         // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(500);
         statsBar.setExperience(50);
@@ -132,6 +151,12 @@ public class GameLaucher extends ApplicationAdapter {
         inventoryManager.addItem(riceSeed, 1);
         inventoryManager.addItem(eggplantSeed, 5);
         inventoryManager.addItem(eggplantSeed, 5);
+
+        // Thêm tool vào inventory
+        com.mygdx.game.items.tools.WateringCan wateringCan = new com.mygdx.game.items.tools.WateringCan();
+        com.mygdx.game.items.tools.Sickle sickle = new com.mygdx.game.items.tools.Sickle();
+        inventoryManager.addItem(wateringCan, 1);
+        inventoryManager.addItem(sickle, 1);
 
         // Cập nhật UI sau khi thêm vật phẩm
         inventoryUI.updateUI();
@@ -201,11 +226,27 @@ public class GameLaucher extends ApplicationAdapter {
             shapeRenderer.end();
         }
 
+        // Render NPC
+        batch.begin();
+        shopkeeper.render(batch);
+        batch.end();
+
         // Render cây trồng
         batch.begin();
+        batch.setProjectionMatrix(camera.getCamera().combined);
         if (plantManager != null) {
             plantManager.render(batch);
         }
+
+        // Render hiệu ứng tưới nước
+        Iterator<WateringEffect> it = wateringEffects.iterator();
+        while (it.hasNext()) {
+            WateringEffect effect = it.next();
+            effect.update(delta);
+            effect.render(batch);
+            if (effect.isFinished()) it.remove();
+        }
+
         batch.end();
 
         // Kiểm tra nhấn phím I để toggle full inventory
@@ -218,40 +259,19 @@ public class GameLaucher extends ApplicationAdapter {
 
         uiStage.act(delta);
         uiStage.draw();
-
-        // Render NPC
-        batch.begin();
-        shopkeeper.render(batch);
-        batch.end();
     }
 
     private void handleFarmingInput() {
-        // Chuyển đổi chế độ
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-            plantMode = true;
-            waterMode = false;
-            harvestMode = false;
-            System.out.println("Plant mode activated");
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-            plantMode = false;
-            waterMode = true;
-            harvestMode = false;
-            System.out.println("Water mode activated");
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
-            plantMode = false;
-            waterMode = false;
-            harvestMode = true;
-            System.out.println("Harvest mode activated");
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            plantMode = waterMode = harvestMode = false;
-            System.out.println("Farming modes deactivated");
-        }
-
         // Lựa chọn slot (1-6 cho quickbar)
         for (int i = 0; i < 6; i++) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1 + i)) {
-                selectedSlotIndex = i;
-                System.out.println("Selected slot " + (selectedSlotIndex + 1));
+                if (selectedSlotIndex == i) {
+                    selectedSlotIndex = -1;
+                    System.out.println("Unselected slot");
+                } else {
+                    selectedSlotIndex = i;
+                    System.out.println("Selected slot " + (selectedSlotIndex + 1));
+                }
             }
         }
 
@@ -260,58 +280,74 @@ public class GameLaucher extends ApplicationAdapter {
             Vector3 worldCoordinates = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.getCamera().unproject(worldCoordinates);
 
-            // Tọa độ chuột trong thế giới
             float mouseWorldX = worldCoordinates.x;
             float mouseWorldY = worldCoordinates.y;
 
-            if (plantMode) {
-                tryPlantSeed(mouseWorldX, mouseWorldY);
-            } else if (waterMode) {
-                tryWaterPlant(mouseWorldX, mouseWorldY);
-            } else if (harvestMode) {
-                tryHarvestPlant(mouseWorldX, mouseWorldY);
-            }
-        }
-    }
-
-    private void tryPlantSeed(float x, float y) {
-        // Kiểm tra xem slot đang chọn có phải là hạt giống không
-        if (selectedSlotIndex < inventoryManager.getSlots().size()) {
-            InventorySlot slot = inventoryManager.getSlots().get(selectedSlotIndex);
-            if (!slot.isEmpty()) {
-                Item item = slot.getItem();
-                if (item instanceof Seed) {
-                    Seed seed = (Seed) item;
-                    boolean planted = plantManager.plantSeed(seed, x, y);
-                    if (planted) {
-                        System.out.println("Planted " + seed.getName() + " at " + x + ", " + y);
+            // Nếu không có slot nào được chọn, hiển thị đếm ngược khi click vào cây
+            if (selectedSlotIndex == -1) {
+                if (plantManager.getFarmField().isInField(mouseWorldX, mouseWorldY)) {
+                    System.out.println("Click detected in farm field at: " + mouseWorldX + ", " + mouseWorldY);
+                    boolean showedCountdown = plantManager.showPlantCountdown(mouseWorldX, mouseWorldY);
+                    if (showedCountdown) {
+                        System.out.println("Hiển thị thông tin thời gian thành công");
                     } else {
-                        System.out.println("Cannot plant here");
+                        System.out.println("Không tìm thấy cây tại vị trí này");
                     }
                 } else {
-                    System.out.println("Selected item is not a seed");
+                    System.out.println("Click outside farm field at: " + mouseWorldX + ", " + mouseWorldY);
                 }
-            } else {
-                System.out.println("No item in selected slot");
+                return;
             }
-        }
-    }
 
-    private void tryWaterPlant(float x, float y) {
-        boolean watered = plantManager.waterPlant(x, y);
-        if (watered) {
-            System.out.println("Watered plant at " + x + ", " + y);
-        } else {
-            System.out.println("No plant to water at this position or plant doesn't need water");
-        }
-    }
-
-    private void tryHarvestPlant(float x, float y) {
-        boolean harvested = plantManager.harvestPlant(x, y);
-        if (harvested) {
-            System.out.println("Harvested plant at " + x + ", " + y);
-        } else {
-            System.out.println("No plant to harvest at this position or plant is not ready");
+            if (selectedSlotIndex >= 0 && selectedSlotIndex < inventoryManager.getSlots().size()) {
+                InventorySlot slot = inventoryManager.getSlots().get(selectedSlotIndex);
+                if (!slot.isEmpty()) {
+                    Item item = slot.getItem();
+                    // Nếu là hạt giống
+                    if (item instanceof Seed) {
+                        Seed seed = (Seed) item;
+                        boolean planted = plantManager.plantSeed(seed, mouseWorldX, mouseWorldY);
+                        if (planted) {
+                            System.out.println("Planted " + seed.getName() + " at " + mouseWorldX + ", " + mouseWorldY);
+                            inventoryUI.updateUI();
+                        } else {
+                            System.out.println("Cannot plant here" );
+                        }
+                        // Nếu là Tool
+                    } else if (item instanceof com.mygdx.game.items.tools.Tool) {
+                        com.mygdx.game.items.tools.Tool tool = (com.mygdx.game.items.tools.Tool) item;
+                        // Nếu là WateringCan thì tạo hiệu ứng
+                        if (tool instanceof WateringCan) {
+                            WateringCan wc = (WateringCan) tool;
+                            WateringEffect effect = wc.useToolWithEffect(plantManager, mouseWorldX, mouseWorldY);
+                            if (effect != null) {
+                                wateringEffects.add(effect);
+                                System.out.println("Watered plant at " + mouseWorldX + ", " + mouseWorldY);
+                                inventoryUI.updateUI();
+                            } else {
+                                System.out.println("No plant to water at this position or plant doesn't need water");
+                            }
+                        } else {
+                            boolean result = tool.useTool(plantManager, mouseWorldX, mouseWorldY);
+                            if (tool.getName().toLowerCase().contains("liềm")) {
+                                if (result) {
+                                    System.out.println("Harvested plant at " + mouseWorldX + ", " + mouseWorldY);
+                                    inventoryUI.updateUI();
+                                } else {
+                                    System.out.println("No plant to harvest at this position or plant is not ready");
+                                }
+                            } else {
+                                System.out.println("Used tool: " + tool.getName());
+                                inventoryUI.updateUI();
+                            }
+                        }
+                    } else {
+                        System.out.println("Selected item is not usable here");
+                    }
+                } else {
+                    System.out.println("No item in selected slot");
+                }
+            }
         }
     }
 
@@ -349,5 +385,10 @@ public class GameLaucher extends ApplicationAdapter {
         inventoryUI.dispose();
         uiStage.dispose();
         shapeRenderer.dispose();
+
+        // Dispose static font in Plant if it exists
+        if (com.mygdx.game.entities.plants.base.Plant.countdownFont != null) {
+            com.mygdx.game.entities.plants.base.Plant.countdownFont.dispose();
+        }
     }
 }

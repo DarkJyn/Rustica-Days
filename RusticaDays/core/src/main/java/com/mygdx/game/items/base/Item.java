@@ -2,6 +2,7 @@ package com.mygdx.game.items.base;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.Texture;
 
 public abstract class Item {
     protected String name;
@@ -23,7 +24,13 @@ public abstract class Item {
         this.type = type;
         this.quantity = 1;
         this.texture = null;
-        // TODO: Load texture from texturePath
+        if (texturePath != null && !texturePath.isEmpty()) {
+            try {
+                this.texture = new TextureRegion(new Texture(texturePath));
+            } catch (Exception e) {
+                System.err.println("[Item] Không thể load texture: " + texturePath + ", lỗi: " + e.getMessage());
+            }
+        }
     }
 
     public Item(String name, String description, int price, ItemType type, TextureRegion texture) {
