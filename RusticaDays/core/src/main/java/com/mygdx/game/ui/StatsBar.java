@@ -168,8 +168,8 @@ public class StatsBar {
     private void renderMoney(SpriteBatch batch) {
         // Draw coin icon
         batch.begin();
-        float iconSize = 40;
-        batch.draw(coinIcon, PADDING + 20, viewport.getWorldHeight() - PADDING * 5 - 80, iconSize, iconSize);
+        float iconSize = 30;
+        batch.draw(coinIcon, PADDING + 30, viewport.getWorldHeight() - PADDING * 5 - 80, iconSize - 5, iconSize + 5);
         batch.end();
 
         // Draw money text with pixellariFont

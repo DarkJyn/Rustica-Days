@@ -85,9 +85,9 @@ public class GameLaucher extends ApplicationAdapter {
         camera.setLerpFactor(0.1f);
 
         // Khởi tạo Player
-        player = new Player(300, 300, "Player.png");
+        player = new Player(350, 350, "Player.png");
         // Khởi tạo NPC
-        shopkeeper = new NPC(343, 455, "NPC.png");
+        shopkeeper = new NPC(345, 460, "NPC.png",camera);
 
         // Khởi tạp nhận Input
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
@@ -148,11 +148,6 @@ public class GameLaucher extends ApplicationAdapter {
             System.out.println("Debug mode: " + (debugMode ? "ON" : "OFF"));
         }
 
-
-
-        // Cập nhật di chuyển
-//        inputHandler.processInput(delta);
-
         // Cập nhật player
         player.update(delta);
 
@@ -179,8 +174,17 @@ public class GameLaucher extends ApplicationAdapter {
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
-        // Vẽ map
-        mapRenderer.render(camera.getCamera());
+        // Render các layer dưới player
+        mapRenderer.renderBelowPlayer(camera.getCamera());
+
+        // Player
+        batch.setProjectionMatrix(camera.getCamera().combined);
+        batch.begin();
+        player.render(batch);
+        batch.end();
+
+        //Render các layer trên player
+        mapRenderer.renderAbovePlayer(camera.getCamera());
 
         // Render StatsBar
         statsBar.render(batch);
@@ -197,19 +201,11 @@ public class GameLaucher extends ApplicationAdapter {
             shapeRenderer.end();
         }
 
-        // Player
-        batch.setProjectionMatrix(camera.getCamera().combined);
-        batch.begin();
-        player.render(batch);
-        shopkeeper.render(batch);
-        batch.end();
-
-        batch.begin();
         // Render cây trồng
+        batch.begin();
         if (plantManager != null) {
             plantManager.render(batch);
         }
-
         batch.end();
 
         // Kiểm tra nhấn phím I để toggle full inventory
@@ -222,6 +218,11 @@ public class GameLaucher extends ApplicationAdapter {
 
         uiStage.act(delta);
         uiStage.draw();
+
+        // Render NPC
+        batch.begin();
+        shopkeeper.render(batch);
+        batch.end();
     }
 
     private void handleFarmingInput() {

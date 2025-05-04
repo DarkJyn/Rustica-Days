@@ -17,14 +17,14 @@ public class Player {
     private boolean facingLeft = false;
 
     public Player(float startX, float startY, String spritesheetPath) {
-        this.x = startX;
-        this.y = startY;
         this.animationManager = new PlayerAnimationManager(spritesheetPath);
 
         // Khởi tạo bounds dựa trên kích thước của frame
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
-        this.bounds = new Rectangle(x, y, 10, 6);
+        this.x = startX;
+        this.y = startY;
+        this.bounds = new Rectangle(x, y, 10, 5);
     }
 
     public void update(float deltaTime) {
@@ -42,12 +42,14 @@ public class Player {
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
 
+        float drawX = x - frameWidth / 3f; // Căn giữa nhân vật theo X
+        float drawY = y - 4;
         // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
         if (facingLeft) {
             // Lật texture sang trái
-            batch.draw(animationManager.getCurrentFrame(), x + frameWidth, y, -frameWidth, frameHeight);
+            batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
         } else {
-            batch.draw(animationManager.getCurrentFrame(), x, y);
+            batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
         }
     }
 
