@@ -201,8 +201,6 @@ public class GameLaucher extends ApplicationAdapter {
             shapeRenderer.end();
         }
 
-
-
         // Render cây trồng
         batch.begin();
         if (plantManager != null) {
