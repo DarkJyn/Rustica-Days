@@ -24,8 +24,12 @@ public class InventorySlot {
     }
 
     public void setItem(Item item, int quantity) {
-        this.item = item;
-        this.quantity = quantity;
+        if (quantity <= 0) {
+            clear();
+        } else {
+            this.item = item;
+            this.quantity = quantity;
+        }
     }
 
     public void clear() {

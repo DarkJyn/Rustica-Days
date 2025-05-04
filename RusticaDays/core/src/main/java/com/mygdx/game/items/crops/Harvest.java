@@ -21,8 +21,6 @@ public abstract class Harvest extends Item {
         super(name, null, price, ItemType.HARVEST, texture);
     }
 
-    protected abstract void initTexture();
-
     @Override
     public String toString() {
         return name + " (Giá: " + price + ")";

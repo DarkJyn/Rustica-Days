@@ -13,12 +13,6 @@ public class Tomato extends Harvest {
     public Tomato(String name, int price, int quantity) {
         super(name, price, TEXTURE_PATH);
         setQuantity(quantity);
-        initTexture();
-    }
-
-    @Override
-    protected void initTexture() {
-        texture = new TextureRegion(new Texture(TEXTURE_PATH));
     }
 
     @Override
