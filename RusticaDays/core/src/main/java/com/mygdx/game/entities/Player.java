@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.entities.animations.PlayerAnimationManager;
 import com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState;
 
-public class Player {
+public class Player implements GameObject {
     private float x, y;
     private float speed = 80f; // pixels/second
     private Rectangle bounds;
@@ -27,6 +27,7 @@ public class Player {
         this.bounds = new Rectangle(x, y, 10, 5);
     }
 
+    @Override
     public void update(float deltaTime) {
         // Update animations
         animationManager.update(deltaTime, currentState);
@@ -38,6 +39,7 @@ public class Player {
         previousState = currentState;
     }
 
+    @Override
     public void render(SpriteBatch batch) {
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
@@ -51,6 +53,16 @@ public class Player {
         } else {
             batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
         }
+    }
+
+    @Override
+    public Vector2 getPosition() {
+        return new Vector2(x, y);
+    }
+
+    @Override
+    public float getDepth() {
+        return y;
     }
 
     public void moveLeft(float delta) {
@@ -93,10 +105,7 @@ public class Player {
     public float getY() {
         return y;
     }
-    // Thêm phương thức để lấy vị trí dưới dạng Vector2
-    public Vector2 getPosition() {
-        return new Vector2(x, y);
-    }
+
     public void setX(float x) {
         this.x = x;
     }
@@ -104,18 +113,23 @@ public class Player {
     public void setY(float y) {
         this.y = y;
     }
+
     public Rectangle getBounds() {
         return bounds;
     }
+
     public float getSpeed() {
         return speed;
     }
+
     public void dispose() {
         animationManager.dispose();
     }
+
     public float getWidth() {
         return animationManager.getFrameWidth();
     }
+
     public float getHeight() {
         return animationManager.getFrameHeight();
     }

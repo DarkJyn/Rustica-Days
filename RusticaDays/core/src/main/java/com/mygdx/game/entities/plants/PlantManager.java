@@ -66,16 +66,16 @@ public class PlantManager {
      * @param y Tọa độ Y
      * @return true nếu trồng thành công
      */
-    public boolean plantSeed(Seed seed, float x, float y) {
+    public Plant plantSeed(Seed seed, float x, float y) {
         if (!farmField.isInField(x, y)) {
-            return false;
+            return null;
         }
         int[] cell = farmField.getCellIndex(x, y);
-        if (cell == null) return false;
+        if (cell == null) return null;
         int row = cell[0];
         int col = cell[1];
         if (farmField.getPlantAt(row, col) != null) {
-            return false;
+            return null;
         }
         // Tính vị trí căn giữa cây trong ô đất
         float cellWidth = farmField.getCellWidth();
@@ -100,10 +100,10 @@ public class PlantManager {
         if (plant != null) {
             if (farmField.plantAt(row, col, plant)) {
                 inventoryManager.removeItemQuantity(seed, 1);
-                return true;
+                return plant;
             }
         }
-        return false;
+        return null;
     }
 
     /**

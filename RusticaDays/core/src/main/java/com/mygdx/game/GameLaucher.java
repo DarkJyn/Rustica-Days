@@ -20,6 +20,7 @@ import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.entities.animations.WateringEffect;
 import com.mygdx.game.entities.plants.PlantManager;
+import com.mygdx.game.entities.plants.base.Plant;
 import com.mygdx.game.input.PlayerInputHandler;
 import com.mygdx.game.entities.NPC;
 import com.mygdx.game.inventory.InventoryManager;
@@ -33,6 +34,7 @@ import com.mygdx.game.items.seeds.RiceSeed;
 import com.mygdx.game.items.seeds.EggplantSeed;
 import com.mygdx.game.items.tools.WateringCan;
 import com.mygdx.game.render.MapRenderer;
+import com.mygdx.game.render.RenderManager;
 import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
 
@@ -54,6 +56,7 @@ public class GameLaucher extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private float mapWidth;
     private float mapHeight;
+    private RenderManager renderManager;
 
     // Quản lý cây trồng
     private PlantManager plantManager;
@@ -134,6 +137,11 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Thêm các mặt hàng vào inventory cho test
         addInitialItems();
+
+        renderManager = new RenderManager();
+
+        // Thêm tất cả đối tượng vào RenderManager
+        renderManager.add(player);
     }
 
     private void addInitialItems() {
@@ -201,11 +209,28 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Render các layer dưới player
         mapRenderer.renderBelowPlayer(camera.getCamera());
-
-        // Player
-        batch.setProjectionMatrix(camera.getCamera().combined);
+//        // Render cây trồng
+//        batch.begin();
+//        batch.setProjectionMatrix(camera.getCamera().combined);
+//        if (plantManager != null) {
+//            plantManager.render(batch);
+//        }
+//        player.render(batch);
+//        batch.end();
         batch.begin();
-        player.render(batch);
+        batch.setProjectionMatrix(camera.getCamera().combined);
+        renderManager.render(batch);
+        batch.end();
+
+        batch.begin();
+        // Render hiệu ứng tưới nước
+        Iterator<WateringEffect> it = wateringEffects.iterator();
+        while (it.hasNext()) {
+            WateringEffect effect = it.next();
+            effect.update(delta);
+            effect.render(batch);
+            if (effect.isFinished()) it.remove();
+        }
         batch.end();
 
         //Render các layer trên player
@@ -229,24 +254,6 @@ public class GameLaucher extends ApplicationAdapter {
         // Render NPC
         batch.begin();
         shopkeeper.render(batch);
-        batch.end();
-
-        // Render cây trồng
-        batch.begin();
-        batch.setProjectionMatrix(camera.getCamera().combined);
-        if (plantManager != null) {
-            plantManager.render(batch);
-        }
-
-        // Render hiệu ứng tưới nước
-        Iterator<WateringEffect> it = wateringEffects.iterator();
-        while (it.hasNext()) {
-            WateringEffect effect = it.next();
-            effect.update(delta);
-            effect.render(batch);
-            if (effect.isFinished()) it.remove();
-        }
-
         batch.end();
 
         // Kiểm tra nhấn phím I để toggle full inventory
@@ -306,8 +313,9 @@ public class GameLaucher extends ApplicationAdapter {
                     // Nếu là hạt giống
                     if (item instanceof Seed) {
                         Seed seed = (Seed) item;
-                        boolean planted = plantManager.plantSeed(seed, mouseWorldX, mouseWorldY);
-                        if (planted) {
+                        Plant planted = plantManager.plantSeed(seed, mouseWorldX, mouseWorldY);
+                        if (planted != null) {
+                                renderManager.add(planted);
                             System.out.println("Planted " + seed.getName() + " at " + mouseWorldX + ", " + mouseWorldY);
                             inventoryUI.updateUI();
                         } else {
