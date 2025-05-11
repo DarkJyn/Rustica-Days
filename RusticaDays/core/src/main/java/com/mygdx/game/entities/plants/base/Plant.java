@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.mygdx.game.entities.GameObject;
 import com.mygdx.game.entities.plants.states.GrowthState;
 import com.mygdx.game.items.crops.Harvest;
 import com.badlogic.gdx.graphics.Color;
@@ -19,7 +20,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
  * Cây sẽ phát triển qua từng giai đoạn nếu được tưới nước.
  * Khi trưởng thành, có thể thu hoạch và tạo ra sản phẩm.
  */
-public abstract class Plant {
+public abstract class Plant implements GameObject {
     protected Rectangle bounds;                          // Khu vực chiếm dụng của cây
     protected GrowthState growthState;                   // Trạng thái phát triển hiện tại
     protected float growthTimer;                         // Bộ đếm thời gian phát triển
@@ -90,6 +91,7 @@ public abstract class Plant {
     /**
      * Cập nhật cây mỗi frame.
      */
+    @Override
     public void update(float deltaTime) {
         // Cập nhật hoạt ảnh
         animationTimer += deltaTime;
@@ -154,6 +156,7 @@ public abstract class Plant {
     /**
      * Vẽ cây lên màn hình.
      */
+    @Override
     public void render(SpriteBatch batch) {
         if (isVisible()) {
             TextureRegion texture = getGrowthTexture();
@@ -296,5 +299,18 @@ public abstract class Plant {
                 System.out.println("Hide countdown: " + this + " at " + System.currentTimeMillis());
             }
         }
+    }
+
+    // Implemention of GameObject interface methods
+    @Override
+    public Vector2 getPosition() {
+        return new Vector2(bounds.x, bounds.y);
+    }
+
+    @Override
+    public float getDepth() {
+        // Dùng tọa độ y của phần đáy cây để xác định độ sâu
+        // Sử dụng phần đáy của cây, không phải phần giữa để xử lý đúng vị trí
+        return bounds.y;
     }
 }
