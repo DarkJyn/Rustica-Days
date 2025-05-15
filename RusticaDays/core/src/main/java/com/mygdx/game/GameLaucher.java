@@ -92,18 +92,6 @@ public class GameLaucher extends ApplicationAdapter {
         camera.setSmoothCamera(true);
         camera.setLerpFactor(0.1f);
 
-        // Khởi tạo Player
-        player = new Player(350, 350, "Player.png");
-        // Khởi tạo NPC
-        shopkeeper = new NPC(345, 460, "NPC.png",camera);
-
-        // Khởi tạp nhận Input
-        inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
-        inputHandler.registerNPC(shopkeeper);
-
-        // Stats Bar
-        statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
         // UI Stage
         uiStage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(uiStage);
@@ -127,6 +115,22 @@ public class GameLaucher extends ApplicationAdapter {
             }
         });
 
+        // Thêm các mặt hàng vào inventory cho test
+        addInitialItems();
+
+        // Khởi tạo Player
+        player = new Player(350, 350, "Player.png");
+
+        // Khởi tạo NPC
+        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI);
+
+        // Khởi tạp nhận Input
+        inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
+        inputHandler.registerNPC(shopkeeper);
+
+        // Stats Bar
+        statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(500);
         statsBar.setExperience(50);
@@ -134,9 +138,6 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Khởi tạo PlantManager
         plantManager = new PlantManager(inventoryManager);
-
-        // Thêm các mặt hàng vào inventory cho test
-        addInitialItems();
 
         renderManager = new RenderManager();
 
@@ -192,15 +193,8 @@ public class GameLaucher extends ApplicationAdapter {
         // Thêm kiểm tra giới hạn map cho player (tùy chọn)
         limitPlayerToMapBounds();
 
-        // Chỉ xử lý input khi không đang tương tác trong cửa hàng
-        if (!inputHandler.isInteractingWithNPC() ||
-            (inputHandler.getInteractingNPC() != null && !inputHandler.getInteractingNPC().isShopOpen())) {
-            // Xử lý input
-            inputHandler.processInput(delta);
-        } else {
-            // Nếu đang trong cửa hàng, chỉ xử lý input liên quan đến NPC
-            inputHandler.handleNPCInteraction();
-        }
+        // Xử lí Input
+        inputHandler.processInput(delta);
 
         // Camera follow Player
         camera.followTarget(player.getX(), player.getY());

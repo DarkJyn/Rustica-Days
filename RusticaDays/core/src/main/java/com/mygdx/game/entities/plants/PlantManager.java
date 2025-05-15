@@ -4,11 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.entities.plants.base.Plant;
 import com.mygdx.game.entities.plants.states.GrowthState;
-import com.mygdx.game.entities.plants.types.Carrot;
-import com.mygdx.game.entities.plants.types.Corn;
-import com.mygdx.game.entities.plants.types.Eggplant;
-import com.mygdx.game.entities.plants.types.Rice;
-import com.mygdx.game.entities.plants.types.Tomato;
+import com.mygdx.game.entities.plants.types.*;
 import com.mygdx.game.inventory.InventoryManager;
 import com.mygdx.game.items.base.Item;
 import com.mygdx.game.items.crops.Harvest;
@@ -90,12 +86,18 @@ public class PlantManager {
             plant = new Tomato(xPos, yPos, width, height);
         } else if (seedName.contains("cà rốt")) {
             plant = new Carrot(xPos, yPos, width, height);
-        } else if (seedName.contains("ngô")) {
+        } else if (seedName.contains("hạt ngô")) {
             plant = new Corn(xPos, yPos, width, height);
         } else if (seedName.contains("lúa")) {
             plant = new Rice(xPos, yPos, width, height);
         } else if (seedName.contains("cà tím")) {
             plant = new Eggplant(xPos, yPos, width, height);
+        } else if(seedName.contains("bí ngô")){
+            plant = new Pumpkin(xPos, yPos, width, height + 4);
+        } else if (seedName.contains("dền")){
+            plant = new Radish(xPos, yPos, width, height);
+        } else if (seedName.contains("tỏi")) {
+            plant = new Garlic(xPos, yPos, width, height + 2);
         }
         if (plant != null) {
             if (farmField.plantAt(row, col, plant)) {

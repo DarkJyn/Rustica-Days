@@ -112,24 +112,22 @@ public class PlayerInputHandler {
         float deltaX = 0, deltaY = 0;
         boolean hasMoved = false;
 
-        // Kiểm tra phím theo thứ tự ưu tiên
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-            deltaX = -playerSpeed * delta;
-            hasMoved = true;
+        if(!isInteractingWithNPC()) {
+            // Kiểm tra phím theo thứ tự ưu tiên
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+                deltaX = -playerSpeed * delta;
+                hasMoved = true;
+            } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+                deltaX = playerSpeed * delta;
+                hasMoved = true;
+            } else if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
+                deltaY = playerSpeed * delta;
+                hasMoved = true;
+            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
+                deltaY = -playerSpeed * delta;
+                hasMoved = true;
+            }
         }
-        else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-            deltaX = playerSpeed * delta;
-            hasMoved = true;
-        }
-        else if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
-            deltaY = playerSpeed * delta;
-            hasMoved = true;
-        }
-        else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
-            deltaY = -playerSpeed * delta;
-            hasMoved = true;
-        }
-
         // Nếu không có phím nào được nhấn
         if (!hasMoved) {
             player.standStill();
@@ -168,7 +166,7 @@ public class PlayerInputHandler {
     // Phương thức để kiểm tra xem có đang tương tác với NPC không
     public boolean isInteractingWithNPC() {
         return interactingNPC != null &&
-            (interactingNPC.isShowingDialog() || interactingNPC.isShopOpen());
+            (interactingNPC.isShopOpen() || interactingNPC.isShowingDialog() || interactingNPC.isMenuOpen());
     }
 
     // Phương thức để lấy NPC đang tương tác
