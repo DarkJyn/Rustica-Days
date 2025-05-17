@@ -29,7 +29,7 @@ public class StatsBar {
 
     // Game stats
     private int level;
-    private int experience;
+    private float experience;
     private int maxExperience;
     private int money;
     private float stamina;
@@ -38,6 +38,18 @@ public class StatsBar {
     private Texture coinIcon;
     private Texture statsBackground;
     private Texture Bar;
+
+    // Level up tracking
+    private boolean leveledUp;
+    private LevelUpListener levelUpListener;
+
+    public interface LevelUpListener {
+        void onLevelUp(int newLevel);
+    }
+
+    public void setLevelUpListener(LevelUpListener listener) {
+        this.levelUpListener = listener;
+    }
 
     public StatsBar(int screenWidth, int screenHeight) {
         // Initialize camera and viewport for HUD
@@ -60,12 +72,13 @@ public class StatsBar {
         Bar = new Texture(Gdx.files.internal("Bar.png"));
 
         // Initialize game stats with default values
-        level = 99;
+        level = 1;
         experience = 50;
         maxExperience = 100;
         money = 0;
         stamina = 100;
         maxStamina = 100;
+        leveledUp = false;
     }
 
     private void initFont() {
@@ -98,10 +111,12 @@ public class StatsBar {
     }
 
     public void update(float delta) {
-        // Cập nhật stamina khi player di chuyển (sẽ được gọi từ GameLaucher)
+        maxExperience = 100 * level;
     }
 
     public void render(SpriteBatch batch) {
+
+        maxStamina = 100 * level;
         // Set projection matrix to HUD camera
         shapeRenderer.setProjectionMatrix(hudCamera.combined);
         batch.setProjectionMatrix(hudCamera.combined);
@@ -200,6 +215,7 @@ public class StatsBar {
         staminaIcon.dispose();
         statsBackground.dispose();
         coinIcon.dispose();
+        Bar.dispose();
     }
 
     // Các phương thức còn lại giữ nguyên như cũ
@@ -227,20 +243,24 @@ public class StatsBar {
         this.level = level;
     }
 
-    public int getExperience() {
+    public float getExperience() {
         return experience;
     }
 
-    public void setExperience(int experience) {
+    public void setExperience(float experience) {
         this.experience = experience;
         while (this.experience >= maxExperience) {
             this.experience -= maxExperience;
             level++;
             maxExperience = calculateNextLevelExp();
+            // Thông báo level up cho GameLauncher để hiển thị hiệu ứng
+            if (levelUpListener != null) {
+                levelUpListener.onLevelUp(level);
+            }
         }
     }
 
-    public void addExperience(int amount) {
+    public void addExperience(float amount) {
         setExperience(experience + amount);
     }
 
@@ -250,6 +270,10 @@ public class StatsBar {
 
     public void setMoney(int money) {
         this.money = money;
+    }
+
+    public float getMaxStamina() {
+        return maxStamina;
     }
 
     public void addMoney(int amount) {
