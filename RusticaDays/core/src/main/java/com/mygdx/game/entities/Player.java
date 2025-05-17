@@ -5,6 +5,14 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.entities.animations.PlayerAnimationManager;
 import com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.game.entities.animals.FishType;
+import com.mygdx.game.items.animalproducts.FishItem;
+import com.mygdx.game.inventory.InventoryManager;
+import java.util.Random;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.Color;
+import com.mygdx.game.entities.plants.base.Plant;
 
 public class Player implements GameObject {
     private float x, y;
@@ -16,7 +24,13 @@ public class Player implements GameObject {
     private PlayerState previousState = PlayerState.STAND_DOWN;
     private boolean facingLeft = false;
 
-    public Player(float startX, float startY, String spritesheetPath) {
+    private InventoryManager inventoryManager;
+    // Notification trên đầu nhân vật
+    private String notificationMessage = null;
+    private float notificationTimer = 0f;
+    private static final float NOTIFICATION_DURATION = 2.0f;
+
+    public Player(float startX, float startY, String spritesheetPath, InventoryManager inventoryManager) {
         this.animationManager = new PlayerAnimationManager(spritesheetPath);
 
         // Khởi tạo bounds dựa trên kích thước của frame
@@ -25,6 +39,7 @@ public class Player implements GameObject {
         this.x = startX;
         this.y = startY;
         this.bounds = new Rectangle(x, y, 10, 5);
+        this.inventoryManager = inventoryManager;
     }
 
     @Override
@@ -37,6 +52,14 @@ public class Player implements GameObject {
 
         // Save current state for next frame
         previousState = currentState;
+
+        // Cập nhật notification
+        if (notificationTimer > 0) {
+            notificationTimer -= deltaTime;
+            if (notificationTimer <= 0) {
+                notificationMessage = null;
+            }
+        }
     }
 
     @Override
@@ -52,6 +75,26 @@ public class Player implements GameObject {
             batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
         } else {
             batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
+        }
+
+        // Vẽ notification trên đầu nhân vật
+        if (notificationMessage != null) {
+            if (Plant.countdownFont == null) {
+                try {
+                    Plant.class.getDeclaredMethod("initCountdownFont").setAccessible(true);
+                    Plant.class.getDeclaredMethod("initCountdownFont").invoke(null);
+                } catch (Exception e) {
+                    // Nếu không gọi được, fallback font mặc định
+                    Plant.countdownFont = new BitmapFont();
+                    Plant.countdownFont.setColor(Color.WHITE);
+                    Plant.countdownFont.getData().setScale(0.4f);
+                }
+            }
+            Plant.countdownFont.setColor(Color.GOLD);
+            float textX = x - 30; // căn giữa, tuỳ chỉnh lại nếu cần
+            float textY = y + 15;    // phía trên đầu nhân vật
+            Plant.countdownFont.draw(batch, notificationMessage, textX, textY);
+            Plant.countdownFont.setColor(Color.WHITE);
         }
     }
 
@@ -132,5 +175,38 @@ public class Player implements GameObject {
 
     public float getHeight() {
         return animationManager.getFrameHeight();
+    }
+
+    public void setState(PlayerAnimationManager.PlayerState state) {
+        this.currentState = state;
+    }
+
+    public PlayerAnimationManager getAnimationManager() {
+        return animationManager;
+    }
+
+    /**
+     * Câu cá: 70% ra cá, random 1 trong 5 loại
+     */
+    public FishType tryCatchFish() {
+        Random random = new Random();
+        if (random.nextFloat() < 0.7f) {
+            int fishIndex = random.nextInt(FishType.values().length);
+            FishType caughtFish = FishType.values()[fishIndex];
+            FishItem fishItem = new FishItem(caughtFish);
+            inventoryManager.addItem(fishItem, 1);
+            return caughtFish;
+        } else {
+            return null;
+        }
+    }
+
+    public InventoryManager getInventoryManager() {
+        return inventoryManager;
+    }
+
+    public void showNotification(String message) {
+        this.notificationMessage = message;
+        this.notificationTimer = NOTIFICATION_DURATION;
     }
 }
