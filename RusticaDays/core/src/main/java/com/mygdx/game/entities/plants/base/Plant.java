@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.graphics.Texture;
 
 /**
  * Lớp cơ sở cho tất cả các loại cây trồng trong game.
@@ -43,6 +44,19 @@ public abstract class Plant implements GameObject {
     public static BitmapFont countdownFont = null;
     protected static GlyphLayout glyphLayout = new GlyphLayout();
     protected float countdownDisplayTimer = 0f;
+
+    // Icon giọt nước khi cây cần tưới
+    private static TextureRegion waterIcon = null;
+    private static void loadWaterIcon() {
+        if (waterIcon == null) {
+            try {
+                Texture waterTexture = new Texture(Gdx.files.internal("[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Crops/water.png"));
+                waterIcon = new TextureRegion(waterTexture);
+            } catch (Exception e) {
+                System.err.println("Could not load water icon: " + e.getMessage());
+            }
+        }
+    }
 
     /**
      * Tạo mới một cây trồng với tọa độ và kích thước cụ thể.
@@ -163,6 +177,16 @@ public abstract class Plant implements GameObject {
             if (texture != null) {
                 batch.draw(texture, bounds.x, bounds.y, bounds.width, bounds.height);
             }
+            // Vẽ icon giọt nước nếu cây cần tưới và chưa trưởng thành
+            if (needsWater && growthState != GrowthState.MATURE) {
+                loadWaterIcon();
+                if (waterIcon != null) {
+                    float iconSize = Math.min(bounds.width, bounds.height) * 0.3f;
+                    float iconX = bounds.x + bounds.width / 2 - iconSize / 2 + 4;
+                    float iconY = bounds.y + bounds.height - iconSize * 0.2f - 1;
+                    batch.draw(waterIcon, iconX, iconY, iconSize, iconSize);
+                }
+            }
         }
     }
 
@@ -171,6 +195,11 @@ public abstract class Plant implements GameObject {
      */
     public void renderCountdown(SpriteBatch batch) {
         if (!isVisible() || !showCountdown) {
+            return;
+        }
+
+        // Nếu cây cần tưới nước thì không hiển thị thời gian đếm ngược
+        if (needsWater && growthState != GrowthState.MATURE) {
             return;
         }
 
@@ -274,7 +303,10 @@ public abstract class Plant implements GameObject {
     // Getters
     public Rectangle getBounds() { return bounds; }
     public GrowthState getGrowthState() { return growthState; }
-    public boolean needsWater() { return needsWater; }
+    public boolean needsWater() {
+        // Khi cây đã trưởng thành thì không cần tưới nữa
+        return needsWater && growthState != GrowthState.MATURE;
+    }
 
     /**
      * Tính toán tiến độ phát triển (0 - 1) của giai đoạn hiện tại.

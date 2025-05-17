@@ -42,6 +42,7 @@ import com.mygdx.game.module.SleepSystem; // Import SleepSystem
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 public class GameLaucher extends ApplicationAdapter {
     private SpriteBatch batch;
@@ -94,6 +95,13 @@ public class GameLaucher extends ApplicationAdapter {
     private static final float SLEEP_STAMINA_RESTORE = 100f; // Phục hồi toàn bộ stamina khi ngủ
     private static final float SLEEP_XP_REWARD = 0.1f; // XP nhận được khi ngủ
 
+    // Thêm biến trạng thái câu cá
+    private boolean isFishing = false;
+    private float fishingTimer = 0f;
+    private int fishingPhase = 0; // 0: cast, 1: wait, 2: hook, 3: pull
+    private float fishingWaitDuration = 0f; // Thời gian ngồi câu random
+    private Random fishingRandom = new Random();
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -143,7 +151,7 @@ public class GameLaucher extends ApplicationAdapter {
         addInitialItems();
 
         // Khởi tạo Player
-        player = new Player(660, 360, "Player.png");
+        player = new Player(660, 360, "Player.png", inventoryManager);
 
         // Khởi tạo Sleep System
         sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player,camera);
@@ -209,8 +217,11 @@ public class GameLaucher extends ApplicationAdapter {
         // Thêm tool vào inventory
         com.mygdx.game.items.tools.WateringCan wateringCan = new com.mygdx.game.items.tools.WateringCan();
         com.mygdx.game.items.tools.Sickle sickle = new com.mygdx.game.items.tools.Sickle();
+        com.mygdx.game.items.tools.FishingRod fishingrod = new com.mygdx.game.items.tools.FishingRod();
+
         inventoryManager.addItem(wateringCan, 1);
         inventoryManager.addItem(sickle, 1);
+        inventoryManager.addItem(fishingrod, 1);
 
         // Cập nhật UI sau khi thêm vật phẩm
         inventoryUI.updateUI();
@@ -251,6 +262,127 @@ public class GameLaucher extends ApplicationAdapter {
             sleepSystem.setSleepEnd(false);
         }
 
+        // Xác định vùng nước cho phép câu cá
+        boolean inFishingZone = false;
+        float px = player.getX();
+        float py = player.getY();
+        if (px >= 475.75125 && px <= 501.8265 && py >= 131.38489 && py <= 157.67522) {
+            inFishingZone = true;
+        }
+        // Kiểm tra chọn cần câu
+        boolean holdingFishingRod = false;
+        if (selectedSlotIndex >= 0 && selectedSlotIndex < inventoryManager.getSlots().size()) {
+            InventorySlot slot = inventoryManager.getSlots().get(selectedSlotIndex);
+            if (!slot.isEmpty() && slot.getItem() instanceof com.mygdx.game.items.tools.FishingRod) {
+                holdingFishingRod = true;
+            }
+        }
+        // Xử lý hiệu ứng hoạt ảnh câu cá (lặp lại)
+        if (isFishing) {
+            boolean shouldStopFishing = false;
+            String stopReason = "";
+
+            // Kết thúc câu cá nếu không còn chọn cần câu
+            if (!holdingFishingRod) {
+                shouldStopFishing = true;
+                stopReason = "bỏ chọn cần câu";
+            }
+
+            // Kết thúc câu cá nếu ra khỏi vùng câu cá
+            if (!inFishingZone) {
+                shouldStopFishing = true;
+                stopReason = "ra khỏi vùng nước";
+            }
+
+            // Kiểm tra xem người chơi có đang di chuyển không
+            boolean isMoving = Gdx.input.isKeyPressed(Input.Keys.LEFT) ||
+                Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
+                Gdx.input.isKeyPressed(Input.Keys.UP) ||
+                Gdx.input.isKeyPressed(Input.Keys.DOWN) ||
+                Gdx.input.isKeyPressed(Input.Keys.A) ||
+                Gdx.input.isKeyPressed(Input.Keys.D) ||
+                Gdx.input.isKeyPressed(Input.Keys.W) ||
+                Gdx.input.isKeyPressed(Input.Keys.S);
+
+            if (isMoving) {
+                shouldStopFishing = true;
+                stopReason = "di chuyển";
+            }
+
+            // Áp dụng kết thúc câu cá nếu cần
+            if (shouldStopFishing) {
+                isFishing = false;
+                player.standStill();
+                System.out.println("Kết thúc câu cá do " + stopReason);
+            } else {
+                // Tiếp tục câu cá khi không di chuyển
+                fishingTimer += delta;
+                if (fishingPhase == 0) { // FISH_CAST
+                    player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_CAST);
+                    if (fishingTimer > 2.0f) {
+                        fishingPhase = 1;
+                        fishingTimer = 0f;
+                        // Reset animation timer khi đổi phase
+                        player.getAnimationManager().resetStateTime();
+                        // Random thời gian ngồi câu (5-15s)
+                        fishingWaitDuration = 5f + fishingRandom.nextFloat() * 10f;
+                    }
+                } else if (fishingPhase == 1) { // FISH_WAIT
+                    player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_WAIT);
+                    if (fishingTimer > fishingWaitDuration) {
+                        fishingPhase = 2;
+                        fishingTimer = 0f;
+                        // Reset animation timer khi đổi phase
+                        player.getAnimationManager().resetStateTime();
+                    }
+                } else if (fishingPhase == 2) { // FISH_HOOK
+                    player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_HOOK);
+                    if (fishingTimer > 2.0f) {
+                        fishingPhase = 3;
+                        fishingTimer = 0f;
+                        // Reset animation timer khi đổi phase
+                        player.getAnimationManager().resetStateTime();
+                    }
+                } else if (fishingPhase == 3) { // FISH_PULL
+                    player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_PULL);
+                    if (fishingTimer > 2.0f) {
+                        fishingPhase = 0;
+                        fishingTimer = 0f;
+                        // Reset animation timer khi đổi phase
+                        player.getAnimationManager().resetStateTime();
+                        // Sau khi kéo cần xong, random cá
+                        com.mygdx.game.entities.animals.FishType fish = player.tryCatchFish();
+                        if (fish != null) {
+                            player.showNotification("Bạn đã câu được: " + com.mygdx.game.items.animalproducts.FishItem.getFishName(fish));
+                            inventoryUI.updateUI();
+                        } else {
+                            player.showNotification("Không câu được cá lần này!");
+                        }
+                    }
+                }
+            }
+        } else {
+            // Kiểm tra xem có thể bắt đầu câu cá tự động khi dừng lại không
+            boolean playerStopped = !Gdx.input.isKeyPressed(Input.Keys.LEFT) &&
+                !Gdx.input.isKeyPressed(Input.Keys.RIGHT) &&
+                !Gdx.input.isKeyPressed(Input.Keys.UP) &&
+                !Gdx.input.isKeyPressed(Input.Keys.DOWN) &&
+                !Gdx.input.isKeyPressed(Input.Keys.A) &&
+                !Gdx.input.isKeyPressed(Input.Keys.D) &&
+                !Gdx.input.isKeyPressed(Input.Keys.W) &&
+                !Gdx.input.isKeyPressed(Input.Keys.S);
+
+            // Bắt đầu câu cá tự động khi dừng lại trong vùng câu cá và đang cầm cần câu
+            if (playerStopped && inFishingZone && holdingFishingRod && !isFishing) {
+                isFishing = true;
+                fishingTimer = 0f;
+                fishingPhase = 0;
+                fishingWaitDuration = 0f;
+                player.getAnimationManager().resetStateTime();
+                System.out.println("Tự động bắt đầu câu cá khi dừng lại trong vùng nước");
+            }
+        }
+
         // Cập nhật stats bar
 //        statsBar.update(delta);
 
@@ -286,6 +418,12 @@ public class GameLaucher extends ApplicationAdapter {
             effect.render(batch);
             if (effect.isFinished()) it.remove();
         }
+        batch.end();
+
+        // Render đếm ngược cho cây trồng
+        batch.begin();
+        batch.setProjectionMatrix(camera.getCamera().combined);
+        plantManager.getFarmField().renderCountdowns(batch);
         batch.end();
 
         //Render các layer trên player
@@ -333,8 +471,10 @@ public class GameLaucher extends ApplicationAdapter {
             inventoryUI.toggleInventory();
         }
 
-        // Xử lý tương tác với cây trồng (chỉ khi không ngủ)
-        if (!sleepSystem.shouldBlockPlayerMovement()) {
+        // Xử lý tương tác với cây trồng
+        float playerX = player.getX();
+        float playerY = player.getY();
+        if (playerX > 452.6428 && playerX < 555.06213 && playerY > 304.81705 && playerY < 435.53748) {
             handleFarmingInput();
         }
 
