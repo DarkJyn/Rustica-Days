@@ -46,16 +46,20 @@ public class InventoryUI {
         this.uiStage = stage;
 
         // Tải texture slot một lần duy nhất
-        slotTexture = new Texture(Gdx.files.internal("Skin/InventoryUI/Inventory_slot.png"));
+        slotTexture = new Texture(Gdx.files.internal("Inventory_slotUI.png"));
         font = new BitmapFont(); // Sử dụng font mặc định
 
         quickbarTable = new Table();
         fullInventoryTable = new Table();
+        //add recently
+        uiStage.addActor(quickbarTable);
 
         fullInventoryTable.setVisible(false);
         uiStage.addActor(fullInventoryTable);
 
-        quickbarTable.setPosition(700, 50);
+        quickbarTable.setPosition(450, 30);
+        //quickbarTable.setSize(slotTexture.getWidth(), slotTexture.getHeight());
+
         fullInventoryTable.setPosition(700, 500);
         fullInventoryTable.setVisible(false);
 
@@ -66,46 +70,56 @@ public class InventoryUI {
     private void createQuickbar() {
         // Làm mới quickbar table
         quickbarTable.clear();
+        Texture backgroundTexture = new Texture(Gdx.files.internal("QuickBarUI.png"));
+        TextureRegionDrawable backgroundDrawable = new TextureRegionDrawable(new TextureRegion(backgroundTexture));
+        //new
+        quickbarTable.setBackground(backgroundDrawable);
+
 
         // Thêm các ô vật phẩm vào quickbar
         for (int i = 0; i < 6; i++) {
             Stack slotStack = createSlotStack(i);
-            quickbarTable.add(slotStack).pad(5).size(48, 60);
+            quickbarTable.add(slotStack).space(12).pad(5).size(48, 60);
+            //48 60
         }
+        quickbarTable.pack();
+        quickbarTable.pad(15);
     }
 
     private void createFullInventory() {
         // Tạo background cho bảng
-        Texture backgroundTexture = new Texture(Gdx.files.internal("Skin/InventoryUI/InventoryBackground.png"));
+        Texture backgroundTexture = new Texture(Gdx.files.internal("FullInventoryUI.png"));
         TextureRegionDrawable backgroundDrawable = new TextureRegionDrawable(new TextureRegion(backgroundTexture));
 
         // Tạo bảng để chứa ô vật phẩm
         Table inventoryTable = new Table();
+        //inventoryTable.setSize(312, 386);
         inventoryTable.setBackground(backgroundDrawable);
         inventoryTable.top();
         inventoryTable.center();
-        inventoryTable.pad(10);
+        inventoryTable.pad(15);
+
 
         // Thêm tiêu đề "Inventory" vào bảng nếu cần
-        if (font != null) {
-            Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
-            Label inventoryLabel = new Label("INVENTORY", labelStyle);
-            inventoryTable.add(inventoryLabel).colspan(6).padBottom(10).center().row();
-        }
+//        if (font != null) {
+//            Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
+//            Label inventoryLabel = new Label("INVENTORY", labelStyle);
+//            inventoryTable.add(inventoryLabel).colspan(6).padBottom(10).center().row();
+//        }
 
         // Thêm các ô vật phẩm vào bảng
         int index = 0;
-        for (int row = 0; row < 6; row++) {
+        for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 6; col++) {
                 Stack slotStack = createSlotStack(index);
-                inventoryTable.add(slotStack).pad(4).size(48, 60);
+                inventoryTable.add(slotStack).pad(15).size(48, 60).center();
                 index++;
             }
             inventoryTable.row();
         }
 
         fullInventoryTable.clear();
-        fullInventoryTable.add(inventoryTable).expand().fill();
+        fullInventoryTable.add(inventoryTable).fill();
     }
 
     private Stack createSlotStack(int index) {
@@ -114,9 +128,10 @@ public class InventoryUI {
         // Tạo Stack để xếp chồng các thành phần
         Stack slotStack = new Stack();
 
-        // Tạo hình ảnh slot làm nền
-        Image slotBackground = new Image(new TextureRegion(slotTexture));
-        slotStack.add(slotBackground);
+        // Tạo hình ảnh slot làm nền (nền hiện tại đang invisible)
+        //Image slotBackground = new Image(new TextureRegion(slotTexture));
+        //slotStack.add(slotBackground);
+        //slotStack.setVisible(false);
 
         // Nếu slot có vật phẩm, hiển thị vật phẩm lên trên slot
         if (!slot.isEmpty()) {
@@ -129,9 +144,12 @@ public class InventoryUI {
                 if (slot.getQuantity() > 1) {
                     Label.LabelStyle quantityStyle = new Label.LabelStyle(font, Color.WHITE);
                     Label quantityLabel = new Label(String.valueOf(slot.getQuantity()), quantityStyle);
+                    quantityLabel.setFontScale(1.5f);
                     Table quantityTable = new Table();
-                    quantityTable.right().bottom();
-                    quantityTable.add(quantityLabel).pad(2);
+                    quantityTable.setFillParent(true);
+                    quantityTable.bottom().right();
+                    quantityTable.add(quantityLabel);
+                    quantityTable.add(quantityLabel).padBottom(-10);
                     slotStack.add(quantityTable);
                 }
             }
