@@ -66,17 +66,29 @@ public class Player implements GameObject {
     public void render(SpriteBatch batch) {
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
-
-        float drawX = x - frameWidth / 3f; // Căn giữa nhân vật theo X
-        float drawY = y - 4;
-        // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
-        if (facingLeft) {
-            // Lật texture sang trái
-            batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
-        } else {
-            batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
+        if(frameHeight == 32){
+            float drawX = x - frameWidth / 3f; // Căn giữa nhân vật theo X
+            float drawY = y - 4;
+            // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
+            if (facingLeft) {
+                // Lật texture sang trái
+                batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
+            } else {
+                batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
+            }
         }
 
+        else if(frameHeight == 64){
+            float drawX = x - frameWidth / 3f - 5; // Căn giữa nhân vật theo X
+            float drawY = y - 20;
+            // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
+            if (facingLeft) {
+                // Lật texture sang trái
+                batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
+            } else {
+                batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
+            }
+        }
         // Vẽ notification trên đầu nhân vật
         if (notificationMessage != null) {
             if (Plant.countdownFont == null) {
