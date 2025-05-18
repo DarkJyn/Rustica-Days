@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -59,6 +60,10 @@ public class GameLaucher extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private float mapWidth;
     private float mapHeight;
+    private Texture fButton;
+    private float stateTime;
+    private TextureRegion currentFrame;
+    private Animation<TextureRegion> fButtonAnimation;
     private RenderManager renderManager;
 
     // Level up effect
@@ -189,6 +194,11 @@ public class GameLaucher extends ApplicationAdapter {
                 showLevelUpEffect();
             }
         });
+
+        fButton = new Texture("FbuttonAni.png");
+        createAnimations();
+        stateTime = 0f;
+        currentFrame = fButtonAnimation.getKeyFrame(0);
     }
 
     // Phương thức hiển thị hiệu ứng Level Up
@@ -230,7 +240,8 @@ public class GameLaucher extends ApplicationAdapter {
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
-
+        stateTime += Gdx.graphics.getDeltaTime();
+        currentFrame = fButtonAnimation.getKeyFrame(stateTime * 2, true);
         // Bật/tắt debug mode khi nhấn F3
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
             debugMode = !debugMode;
@@ -269,6 +280,8 @@ public class GameLaucher extends ApplicationAdapter {
         if (px >= 475.75125 && px <= 501.8265 && py >= 131.38489 && py <= 157.67522) {
             inFishingZone = true;
         }
+
+
         // Kiểm tra chọn cần câu
         boolean holdingFishingRod = false;
         if (selectedSlotIndex >= 0 && selectedSlotIndex < inventoryManager.getSlots().size()) {
@@ -373,7 +386,7 @@ public class GameLaucher extends ApplicationAdapter {
                 !Gdx.input.isKeyPressed(Input.Keys.S);
 
             // Bắt đầu câu cá tự động khi dừng lại trong vùng câu cá và đang cầm cần câu
-            if (playerStopped && inFishingZone && holdingFishingRod && !isFishing) {
+            if (playerStopped && inFishingZone && holdingFishingRod && !isFishing && Gdx.input.isKeyPressed(Input.Keys.F)) {
                 isFishing = true;
                 fishingTimer = 0f;
                 fishingPhase = 0;
@@ -381,6 +394,7 @@ public class GameLaucher extends ApplicationAdapter {
                 player.getAnimationManager().resetStateTime();
                 System.out.println("Tự động bắt đầu câu cá khi dừng lại trong vùng nước");
             }
+
         }
 
         // Cập nhật stats bar
@@ -477,7 +491,12 @@ public class GameLaucher extends ApplicationAdapter {
         if (playerX > 452.6428 && playerX < 555.06213 && playerY > 304.81705 && playerY < 435.53748) {
             handleFarmingInput();
         }
-
+        if(inFishingZone){
+            batch.setProjectionMatrix(camera.getCamera().combined);
+            batch.begin();
+            batch.draw(currentFrame,player.getPosition().x - 3, player.getPosition().y + 20, 16, 16);
+            batch.end();
+        }
         uiStage.act(delta);
         uiStage.draw();
 
@@ -683,5 +702,19 @@ public class GameLaucher extends ApplicationAdapter {
 
     public boolean isPlayerSleeping() {
         return sleepSystem != null && sleepSystem.isSleepAnimationPlaying();
+    }
+    private void createAnimations() {
+        TextureRegion[][] tmp = TextureRegion.split(
+            fButton,
+            fButton.getWidth() / 2,
+            fButton.getHeight());
+
+        TextureRegion[] fButtonFrames = new TextureRegion[2];
+
+        for (int i = 0; i < 2; i++) {
+            fButtonFrames[i] = tmp[0][i];
+        }
+
+        fButtonAnimation = new Animation<>(2, fButtonFrames);
     }
 }
