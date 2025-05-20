@@ -78,7 +78,7 @@ public class Rice extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Rice(
-            "Lúa",
+            "Rice",
             FIXED_PRICE,
             FIXED_YIELD
         );

@@ -15,7 +15,7 @@ public class FishItem extends Item {
         "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Animals/Fish/Fish05.png"
     };
     private static final String[] DESCRIPTIONS = {
-        "Một con cá tươi ngon.", "Một con cá tươi ngon.", "Một con cá tươi ngon.", "Một con cá tươi ngon.", "Một con cá tươi ngon."
+        "A fresh fish", "A fresh fish", "A fresh fish", "A fresh fish", "A fresh fish"
     };
     private static final int[] PRICES = {100, 120, 150, 90, 200};
 

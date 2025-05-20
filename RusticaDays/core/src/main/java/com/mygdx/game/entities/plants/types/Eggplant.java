@@ -78,7 +78,7 @@ public class Eggplant extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Eggplant(
-            "Cà tím",
+            "Cabbage",
             FIXED_PRICE,
             FIXED_YIELD
         );

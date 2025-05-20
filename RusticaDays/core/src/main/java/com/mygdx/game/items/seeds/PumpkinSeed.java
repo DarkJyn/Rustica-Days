@@ -23,8 +23,8 @@ public class PumpkinSeed extends Seed {
     // Constructor mặc định
     public PumpkinSeed() {
         super(
-            "bí ngô",                                  // Tên
-            "Hạt bí ngô để trồng lúa.",                  // Mô tả
+            "Pumpkin Seed",                                  // Tên
+            "Seed to grow Pumpkin",                  // Mô tả
             30,                                          // Giá mua
             loadDefaultTexture(),                        // Texture
             "com.mygdx.game.entities.plants.types.Pumpkin" // Tên class cây trồng

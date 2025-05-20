@@ -23,8 +23,8 @@ public class CarrotSeed extends Seed {
     // Constructor mặc định
     public CarrotSeed() {
         super(
-            "Hạt cà rốt",                               // Tên
-            "Hạt giống để trồng cà rốt.",               // Mô tả
+            "Carrot Seed",                               // Tên
+            "Seed to grow carrots",               // Mô tả
             40,                                           // Giá mua
             loadDefaultTexture(),                         // Texture
             "com.mygdx.game.entities.plants.types.Carrot" // Tên class cây trồng

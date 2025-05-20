@@ -23,8 +23,8 @@ public class RadishSeed extends Seed {
     // Constructor mặc định
     public RadishSeed() {
         super(
-            "củ dền",                                  // Tên
-            "hạt củ dền để trồng dền",                  // Mô tả
+            "Radish Seed",                                  // Tên
+            "Seed to grow radish",                  // Mô tả
             30,                                          // Giá mua
             loadDefaultTexture(),                        // Texture
             "com.mygdx.game.entities.plants.types.Radish" // Tên class cây trồng

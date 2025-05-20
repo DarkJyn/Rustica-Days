@@ -78,7 +78,7 @@ public class Pumpkin extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Pumpkin(
-            "Bí ngô",
+            "Pumpkin",
             FIXED_PRICE,
             FIXED_YIELD
         );

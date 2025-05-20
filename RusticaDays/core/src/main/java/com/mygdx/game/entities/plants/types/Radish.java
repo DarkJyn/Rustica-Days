@@ -78,7 +78,7 @@ public class Radish extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Radish(
-            "dền",
+            "Radish",
             FIXED_PRICE,
             FIXED_YIELD
         );

@@ -169,13 +169,13 @@ public class GameLaucher extends ApplicationAdapter {
         addInitialItems();
 
         // Khởi tạo Player
-        player = new Player(660, 360, "Player.png", inventoryManager);
+        player = new Player(370, 400, "Player.png", inventoryManager);
 
         // Khởi tạo Sleep System
         sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player,camera);
 
         // Khởi tạo NPC
-        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI);
+        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI,statsBar);
 
         // Khởi tạp nhận Input
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
@@ -188,6 +188,14 @@ public class GameLaucher extends ApplicationAdapter {
         statsBar.setMoney(500);
         statsBar.setExperience(90);
         statsBar.setStamina(100);
+
+        // Khởi tạo NPC
+        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI, statsBar);
+        shopkeeper.setStage(uiStage); // Đảm bảo SellUI có stage
+
+        // Khởi tạp nhận Input
+        inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
+        inputHandler.registerNPC(shopkeeper);
 
         // Khởi tạo PlantManager
         plantManager = new PlantManager(inventoryManager);
@@ -392,7 +400,7 @@ public class GameLaucher extends ApplicationAdapter {
                 }
             }
         } else {
-            // Kiểm tra xem có thể bắt đầu câu cá tự động khi dừng lại không
+            // Kiểm tra xem có thể bắt đầu câu cá tự động khi dfừng lại không
             boolean playerStopped = !Gdx.input.isKeyPressed(Input.Keys.LEFT) &&
                 !Gdx.input.isKeyPressed(Input.Keys.RIGHT) &&
                 !Gdx.input.isKeyPressed(Input.Keys.UP) &&

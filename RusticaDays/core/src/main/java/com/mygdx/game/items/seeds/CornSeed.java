@@ -23,8 +23,8 @@ public class CornSeed extends Seed {
     // Constructor mặc định
     public CornSeed() {
         super(
-            "Hạt ngô",                               // Tên
-            "Hạt giống để trồng ngô.",               // Mô tả
+            "Strawberry Seed",                               // Tên
+            "Seed to grow strawberries",               // Mô tả
             60,                                           // Giá mua
             loadDefaultTexture(),                         // Texture
             "com.mygdx.game.entities.plants.types.Corn" // Tên class cây trồng

@@ -78,7 +78,7 @@ public class Garlic extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Garlic(
-            "tỏi",
+            "Garlic",
             FIXED_PRICE,
             FIXED_YIELD
         );
