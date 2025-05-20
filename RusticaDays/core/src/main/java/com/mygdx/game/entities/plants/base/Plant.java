@@ -345,4 +345,21 @@ public abstract class Plant implements GameObject {
         // Sử dụng phần đáy của cây, không phải phần giữa để xử lý đúng vị trí
         return bounds.y;
     }
+
+    public static void initFont() {
+        // Tạo generator từ file Pixellari.ttf
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/PressStart2P.ttf"));
+
+        // Thiết lập tham số font
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        parameter.size = 13; // Kích thước font
+        parameter.color = Color.WHITE;
+        parameter.borderWidth = 1;
+        parameter.borderColor = Color.BLACK;
+
+        countdownFont = generator.generateFont(parameter);
+
+        generator.dispose();
+    }
 }
