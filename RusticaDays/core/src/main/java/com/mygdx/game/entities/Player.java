@@ -67,7 +67,7 @@ public class Player implements GameObject {
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
         if(frameHeight == 32){
-            float drawX = x - frameWidth / 3f; // Căn giữa nhân vật theo X
+            float drawX = x - frameWidth / 3f - 1; // Căn giữa nhân vật theo X
             float drawY = y - 4;
             // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
             if (facingLeft) {
@@ -103,8 +103,9 @@ public class Player implements GameObject {
                 }
             }
             Plant.countdownFont.setColor(Color.GOLD);
-            float textX = x - 30; // căn giữa, tuỳ chỉnh lại nếu cần
-            float textY = y + 15;    // phía trên đầu nhân vật
+            Plant.initFont();
+            float textX = x - 50; // căn giữa, tuỳ chỉnh lại nếu cần
+            float textY = y + 50;    // phía trên đầu nhân vật
             Plant.countdownFont.draw(batch, notificationMessage, textX, textY);
             Plant.countdownFont.setColor(Color.WHITE);
         }

@@ -6,7 +6,7 @@ import com.mygdx.game.items.base.Item;
 public class FishItem extends Item {
     private FishType fishType;
 
-    private static final String[] NAMES = {"Cá 1", "Cá 2", "Cá 3", "Cá 4", "Cá 5"};
+    private static final String[] NAMES = {"Blue Fish", "Green Fish", "Yellow Fish", "Gray Fish", "Red Fish"};
     private static final String[] TEXTURES = {
         "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Animals/Fish/Fish01.png",
         "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Animals/Fish/Fish02.png",
