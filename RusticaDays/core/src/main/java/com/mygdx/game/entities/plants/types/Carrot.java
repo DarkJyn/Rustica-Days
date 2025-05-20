@@ -78,7 +78,7 @@ public class Carrot extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Carrot(
-            "Cà rốt",
+            "Carrot",
             FIXED_PRICE,
             FIXED_YIELD
         );

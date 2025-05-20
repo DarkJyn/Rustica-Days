@@ -23,8 +23,8 @@ public class RiceSeed extends Seed {
     // Constructor mặc định
     public RiceSeed() {
         super(
-            "Hạt lúa",                                  // Tên
-            "Hạt giống để trồng lúa.",                  // Mô tả
+            "Rice Seed",                                  // Tên
+            "Seed to grow Rice",                  // Mô tả
             30,                                          // Giá mua
             loadDefaultTexture(),                        // Texture
             "com.mygdx.game.entities.plants.types.Rice" // Tên class cây trồng

@@ -104,10 +104,10 @@ public class NPCInteractionMenu {
         font.draw(batch, "What do you want?", menuX + 300, menuY + menuHeight - 95);
         // Vẽ các tùy chọn
         for (int i = 0; i < options.length; i++) {
-            Color optionColor = normalColor;
+            Color optionColor = selectedColor;
 
             if (i == selectedOption) {
-                optionColor = selectedColor;
+                optionColor = normalColor;
             } else if (i == mouseHoverIndex && mouseHover) {
                 optionColor = hoverColor;
             }

@@ -81,7 +81,7 @@ public class Tomato extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Tomato(
-            "Cà chua",
+            "Tomato",
             FIXED_PRICE,
             FIXED_YIELD
         );

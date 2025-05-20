@@ -23,8 +23,8 @@ public class GarlicSeed extends Seed {
     // Constructor mặc định
     public GarlicSeed() {
         super(
-            "tỏi",                                  // Tên
-            "Hạt giống tỏi để trồng tỏi .",                  // Mô tả
+            "Garlic Seed",                                  // Tên
+            "Seed to grow Garlic",                  // Mô tả
             30,                                          // Giá mua
             loadDefaultTexture(),                        // Texture
             "com.mygdx.game.entities.plants.types.Garlic" // Tên class cây trồng

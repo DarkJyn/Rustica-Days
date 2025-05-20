@@ -23,8 +23,8 @@ public class EggplantSeed extends Seed {
     // Constructor mặc định
     public EggplantSeed() {
         super(
-            "Hạt cà tím",                                // Tên
-            "Hạt giống để trồng cà tím.",                // Mô tả
+            "Cabbage Seed",                                // Tên
+            "Seed to grow cabbage",                // Mô tả
             45,                                           // Giá mua
             loadDefaultTexture(),                         // Texture
             "com.mygdx.game.entities.plants.types.Eggplant" // Tên class cây trồng
