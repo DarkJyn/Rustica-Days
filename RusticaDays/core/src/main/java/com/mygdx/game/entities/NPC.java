@@ -61,7 +61,7 @@ public class NPC extends Sprite {
         shapeRenderer = new ShapeRenderer();
 
         // Khởi tạo giao diện cửa hàng
-        shopUI = new ShopUI(inventoryManager, inventoryUI);
+        shopUI = new ShopUI(inventoryManager, inventoryUI,statsBar);
 
         // Khởi tạo giao diện bán hàng
         sellUI = new SellUI(inventoryManager, inventoryUI, statsBar);
