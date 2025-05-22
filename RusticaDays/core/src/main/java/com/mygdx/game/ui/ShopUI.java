@@ -27,7 +27,9 @@ public class ShopUI{
     private BitmapFont font;
     private Texture ShopUI;
     private Texture closeButton;
+    private Texture closeButtonPressed;
     private Texture BuyButton;
+    private Texture BuyButtonPressed;
     private boolean isShopOpen;
 
     // Các thuộc tính hiển thị
@@ -43,6 +45,7 @@ public class ShopUI{
 
     private InventoryUI inventoryUI;
     private InventoryManager inventoryManager;
+    private StatsBar statsBar;
 
     //Nút mua vật phẩm
     private Rectangle buyRiceButtonRectangle;
@@ -57,17 +60,34 @@ public class ShopUI{
     // List Danh sách hạt giống trong cửa hàng
     private List<Seed> seedItems;
 
-    public ShopUI(InventoryManager inventoryManager,InventoryUI inventoryUI) {
+    // Biến để theo dõi nút đang được nhấn
+    private Rectangle pressedButton;
+    private boolean isCloseButtonPressed;
+
+    // Giá của các loại hạt giống
+    private static final int RICE_SEED_PRICE = 30;
+    private static final int TOMATO_SEED_PRICE = 50;
+    private static final int CARROT_SEED_PRICE = 40;
+    private static final int CABBAGE_SEED_PRICE = 45;
+    private static final int STRAWBERRY_SEED_PRICE = 60;
+    private static final int PUMPKIN_SEED_PRICE = 30;
+    private static final int GARLIC_SEED_PRICE = 30;
+    private static final int RADISH_SEED_PRICE = 30;
+
+    public ShopUI(InventoryManager inventoryManager, InventoryUI inventoryUI, StatsBar statsBar) {
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
         font.getData().setScale(1.2f);
         this.isShopOpen = true;
         this.inventoryManager = inventoryManager;
         this.inventoryUI = inventoryUI;
+        this.statsBar = statsBar;
         // Load Texture
         ShopUI = new Texture("ShopUI.png");
         closeButton = new Texture("CloseButton.png");
+        closeButtonPressed = new Texture("CloseButtonPressed.png");
         BuyButton = new Texture("BuyButton.png");
+        BuyButtonPressed = new Texture("BuyButtonPressed.png");
         // Thiết lập kích thước và vị trí cửa hàng
         shopWidth = Gdx.graphics.getWidth() - 300;
         shopHeight = Gdx.graphics.getHeight() - 200;
@@ -93,89 +113,179 @@ public class ShopUI{
             batch.end();
             batch.begin();
             batch.draw(ShopUI, shopX, shopY, shopWidth, shopHeight);
-            batch.draw(closeButton, closeButtonRectangle.x, closeButtonRectangle.y, closeButtonRectangle.width, closeButtonRectangle.height);
-            batch.draw(BuyButton,buyRiceButtonRectangle.x,buyRiceButtonRectangle.y,buyRiceButtonRectangle.width,buyRiceButtonRectangle.height);
-            batch.draw(BuyButton,buyTomatoButtonRectangle.x,buyTomatoButtonRectangle.y,buyTomatoButtonRectangle.width,buyTomatoButtonRectangle.height);
-            batch.draw(BuyButton,buyCarrotButtonRectangle.x,buyCarrotButtonRectangle.y,buyCarrotButtonRectangle.width,buyCarrotButtonRectangle.height);
-            batch.draw(BuyButton,buyStrawberryButtonRectangle.x,buyStrawberryButtonRectangle.y,buyStrawberryButtonRectangle.width,buyStrawberryButtonRectangle.height);
-            batch.draw(BuyButton,buyCabbageButtonRectangle.x,buyCabbageButtonRectangle.y,buyCabbageButtonRectangle.width,buyCabbageButtonRectangle.height);
-            batch.draw(BuyButton,buyPumpkinButtonRectangle.x,buyPumpkinButtonRectangle.y,buyPumpkinButtonRectangle.width,buyPumpkinButtonRectangle.height);
-            batch.draw(BuyButton,buyGarlicButtonRectangle.x,buyGarlicButtonRectangle.y,buyGarlicButtonRectangle.width,buyGarlicButtonRectangle.height);
-            batch.draw(BuyButton,buyRadishButtonRectangle.x,buyRadishButtonRectangle.y,buyRadishButtonRectangle.width,buyRadishButtonRectangle.height);
+            
+            // Vẽ nút đóng với texture tương ứng
+            if (isCloseButtonPressed) {
+                batch.draw(closeButtonPressed, closeButtonRectangle.x, closeButtonRectangle.y, closeButtonRectangle.width, closeButtonRectangle.height);
+            } else {
+                batch.draw(closeButton, closeButtonRectangle.x, closeButtonRectangle.y, closeButtonRectangle.width, closeButtonRectangle.height);
+            }
+            
+            // Vẽ các nút Buy với texture tương ứng
+            drawBuyButton(batch, buyRiceButtonRectangle);
+            drawBuyButton(batch, buyTomatoButtonRectangle);
+            drawBuyButton(batch, buyCarrotButtonRectangle);
+            drawBuyButton(batch, buyStrawberryButtonRectangle);
+            drawBuyButton(batch, buyCabbageButtonRectangle);
+            drawBuyButton(batch, buyPumpkinButtonRectangle);
+            drawBuyButton(batch, buyGarlicButtonRectangle);
+            drawBuyButton(batch, buyRadishButtonRectangle);
+            
             handleShopInput();
         }
     }
 
+    private void drawBuyButton(SpriteBatch batch, Rectangle buttonRect) {
+        if (buttonRect == pressedButton) {
+            batch.draw(BuyButtonPressed, buttonRect.x, buttonRect.y, buttonRect.width, buttonRect.height);
+        } else {
+            batch.draw(BuyButton, buttonRect.x, buttonRect.y, buttonRect.width, buttonRect.height);
+        }
+    }
+
     private void handleShopInput() {
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        // Reset pressedButton if mouse is not pressed
+        if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            pressedButton = null;
+            isCloseButtonPressed = false;
+        }
+
         // Xử lý click chuột
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            float mouseX = Gdx.input.getX();
-            // Chuyển đổi tọa độ Y từ hệ tọa độ chuột sang hệ tọa độ của game
-            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-
             // Kiểm tra nếu click vào nút đóng
             if (closeButtonRectangle.contains(mouseX, mouseY)) {
+                isCloseButtonPressed = true;
                 isShopOpen = false;
                 System.out.println("Close button clicked, shop is now closed");
             }
+            // Kiểm tra các nút Buy
             else if(buyTomatoButtonRectangle.contains(mouseX, mouseY)) {
-                TomatoSeed tomatoSeed = new TomatoSeed();
-                inventoryManager.addItem(tomatoSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy tomato");
+                if (canAfford(TOMATO_SEED_PRICE)) {
+                    pressedButton = buyTomatoButtonRectangle;
+                    TomatoSeed tomatoSeed = new TomatoSeed();
+                    inventoryManager.addItem(tomatoSeed,1);
+                    deductMoney(TOMATO_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought tomato seed for " + TOMATO_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy tomato seed!");
+                }
             }
             else if(buyCarrotButtonRectangle.contains(mouseX, mouseY)) {
-                CarrotSeed carrotSeed = new CarrotSeed();
-                inventoryManager.addItem(carrotSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy carrot");
+                if (canAfford(CARROT_SEED_PRICE)) {
+                    pressedButton = buyCarrotButtonRectangle;
+                    CarrotSeed carrotSeed = new CarrotSeed();
+                    inventoryManager.addItem(carrotSeed,1);
+                    deductMoney(CARROT_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought carrot seed for " + CARROT_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy carrot seed!");
+                }
             }
             else if (buyCabbageButtonRectangle.contains(mouseX, mouseY)) {
-                EggplantSeed eggplantSeed = new EggplantSeed();
-                inventoryManager.addItem(eggplantSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy cabbage");
+                if (canAfford(CABBAGE_SEED_PRICE)) {
+                    pressedButton = buyCabbageButtonRectangle;
+                    EggplantSeed eggplantSeed = new EggplantSeed();
+                    inventoryManager.addItem(eggplantSeed,1);
+                    deductMoney(CABBAGE_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought cabbage seed for " + CABBAGE_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy cabbage seed!");
+                }
             }
             else if(buyStrawberryButtonRectangle.contains(mouseX,mouseY)){
-                CornSeed cornSeed = new CornSeed();
-                inventoryManager.addItem(cornSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy straw");
+                if (canAfford(STRAWBERRY_SEED_PRICE)) {
+                    pressedButton = buyStrawberryButtonRectangle;
+                    CornSeed cornSeed = new CornSeed();
+                    inventoryManager.addItem(cornSeed,1);
+                    deductMoney(STRAWBERRY_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought strawberry seed for " + STRAWBERRY_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy strawberry seed!");
+                }
             }
             else if(buyRiceButtonRectangle.contains(mouseX,mouseY)){
-                RiceSeed riceSeed = new RiceSeed();
-                inventoryManager.addItem(riceSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy rice");
+                if (canAfford(RICE_SEED_PRICE)) {
+                    pressedButton = buyRiceButtonRectangle;
+                    RiceSeed riceSeed = new RiceSeed();
+                    inventoryManager.addItem(riceSeed,1);
+                    deductMoney(RICE_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought rice seed for " + RICE_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy rice seed!");
+                }
             }
             else if(buyPumpkinButtonRectangle.contains(mouseX,mouseY)){
-                PumpkinSeed pumpkinSeed = new PumpkinSeed();
-                inventoryManager.addItem(pumpkinSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy pumpkin");
+                if (canAfford(PUMPKIN_SEED_PRICE)) {
+                    pressedButton = buyPumpkinButtonRectangle;
+                    PumpkinSeed pumpkinSeed = new PumpkinSeed();
+                    inventoryManager.addItem(pumpkinSeed,1);
+                    deductMoney(PUMPKIN_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought pumpkin seed for " + PUMPKIN_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy pumpkin seed!");
+                }
             }
             else if (buyRadishButtonRectangle.contains(mouseX,mouseY)) {
-                RadishSeed radishSeed = new RadishSeed();
-                inventoryManager.addItem(radishSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy radish");
+                if (canAfford(RADISH_SEED_PRICE)) {
+                    pressedButton = buyRadishButtonRectangle;
+                    RadishSeed radishSeed = new RadishSeed();
+                    inventoryManager.addItem(radishSeed,1);
+                    deductMoney(RADISH_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought radish seed for " + RADISH_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy radish seed!");
+                }
             }
             else if(buyGarlicButtonRectangle.contains(mouseX,mouseY)) {
-                GarlicSeed garlicSeed = new GarlicSeed();
-                inventoryManager.addItem(garlicSeed,1);
-                inventoryUI.updateUI();
-                System.out.println("buy garlic");
+                if (canAfford(GARLIC_SEED_PRICE)) {
+                    pressedButton = buyGarlicButtonRectangle;
+                    GarlicSeed garlicSeed = new GarlicSeed();
+                    inventoryManager.addItem(garlicSeed,1);
+                    deductMoney(GARLIC_SEED_PRICE);
+                    inventoryUI.updateUI();
+                    System.out.println("Bought garlic seed for " + GARLIC_SEED_PRICE + " coins");
+                } else {
+                    System.out.println("Not enough money to buy garlic seed!");
+                }
             }
         }
     }
+
     public boolean isShopOpen() {
         return isShopOpen;
     }
+
     public void openShop(boolean status){
         isShopOpen = status;
     }
+
     public void dispose() {
         shapeRenderer.dispose();
         font.dispose();
+        if (BuyButtonPressed != null) {
+            BuyButtonPressed.dispose();
+        }
+        if (closeButtonPressed != null) {
+            closeButtonPressed.dispose();
+        }
+    }
+
+    // Phương thức để kiểm tra và trừ tiền khi mua
+    private boolean canAfford(int price) {
+        return statsBar.getMoney() >= price;
+    }
+
+    private void deductMoney(int amount) {
+        statsBar.setMoney(statsBar.getMoney() - amount);
     }
 }
