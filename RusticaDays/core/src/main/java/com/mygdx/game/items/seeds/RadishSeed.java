@@ -25,7 +25,7 @@ public class RadishSeed extends Seed {
         super(
             "Radish Seed",                                  // Tên
             "Seed to grow radish",                  // Mô tả
-            30,                                          // Giá mua
+            80,                                          // Giá mua
             loadDefaultTexture(),                        // Texture
             "com.mygdx.game.entities.plants.types.Radish" // Tên class cây trồng
         );

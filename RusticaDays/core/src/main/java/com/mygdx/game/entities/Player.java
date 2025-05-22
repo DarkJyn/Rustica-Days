@@ -203,7 +203,7 @@ public class Player implements GameObject {
      */
     public FishType tryCatchFish() {
         Random random = new Random();
-        if (random.nextFloat() < 0.7f) {
+        if (random.nextFloat() < 0.5f) {
             int fishIndex = random.nextInt(FishType.values().length);
             FishType caughtFish = FishType.values()[fishIndex];
             FishItem fishItem = new FishItem(caughtFish);

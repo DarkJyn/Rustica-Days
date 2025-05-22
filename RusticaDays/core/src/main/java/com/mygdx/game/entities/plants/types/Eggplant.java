@@ -14,7 +14,7 @@ public class Eggplant extends Plant {
 
     private static final float WATER_NEED_INTERVAL = 12f;       // Cần tưới mỗi 12 giây
     private static final int FIXED_YIELD = 4;                    // Số lượng thu hoạch
-    private static final int FIXED_PRICE = 110;                  // Giá bán cố định
+    private static final int FIXED_PRICE = 500;                  // Giá bán cố định
     private static final int FIXED_EXP = 100;
 
     public Eggplant(float x, float y, float width, float height) {

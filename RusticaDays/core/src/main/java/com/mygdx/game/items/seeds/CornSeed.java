@@ -25,7 +25,7 @@ public class CornSeed extends Seed {
         super(
             "Strawberry Seed",                               // Tên
             "Seed to grow strawberries",               // Mô tả
-            60,                                           // Giá mua
+            600,                                           // Giá mua
             loadDefaultTexture(),                         // Texture
             "com.mygdx.game.entities.plants.types.Corn" // Tên class cây trồng
         );

@@ -25,7 +25,7 @@ public class RiceSeed extends Seed {
         super(
             "Rice Seed",                                  // Tên
             "Seed to grow Rice",                  // Mô tả
-            30,                                          // Giá mua
+            15,                                      // Giá mua
             loadDefaultTexture(),                        // Texture
             "com.mygdx.game.entities.plants.types.Rice" // Tên class cây trồng
         );

@@ -14,7 +14,7 @@ public class Carrot extends Plant {
 
     private static final float WATER_NEED_INTERVAL = 12f;       // Cần tưới mỗi 12 giây
     private static final int FIXED_YIELD = 3;                    // Số lượng thu hoạch
-    private static final int FIXED_PRICE = 100;                  // Giá bán cố định
+    private static final int FIXED_PRICE = 300;                  // Giá bán cố định
     private static final int FIXED_EXP = 100;
 
     public Carrot(float x, float y, float width, float height) {

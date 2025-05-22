@@ -25,7 +25,7 @@ public class CarrotSeed extends Seed {
         super(
             "Carrot Seed",                               // Tên
             "Seed to grow carrots",               // Mô tả
-            40,                                           // Giá mua
+            150,                                           // Giá mua
             loadDefaultTexture(),                         // Texture
             "com.mygdx.game.entities.plants.types.Carrot" // Tên class cây trồng
         );

@@ -14,7 +14,7 @@ public class Tomato extends Plant {
 
     private static final float WATER_NEED_INTERVAL = 10f;       // Cần tưới mỗi 10 giây
     private static final int FIXED_YIELD = 5;                   // Số lượng thu hoạch
-    private static final int FIXED_PRICE = 120;                 // Giá bán cố định
+    private static final int FIXED_PRICE = 80;                 // Giá bán cố định
     private static final int FIXED_EXP = 100;
 
     public Tomato(float x, float y, float width, float height) {
