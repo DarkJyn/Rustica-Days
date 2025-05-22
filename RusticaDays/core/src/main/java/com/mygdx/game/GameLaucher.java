@@ -185,8 +185,8 @@ public class GameLaucher extends ApplicationAdapter {
         statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Thiết lập một số giá trị ban đầu cho StatsBar
-        statsBar.setMoney(500);
-        statsBar.setExperience(90);
+        statsBar.setMoney(10);
+        statsBar.setExperience(0);
         statsBar.setStamina(100);
 
         // Khởi tạo NPC
@@ -233,19 +233,10 @@ public class GameLaucher extends ApplicationAdapter {
 
     private void addInitialItems() {
         // Tạo các mặt hàng hạt giống sử dụng constructor mặc định
-        TomatoSeed tomatoSeed = new TomatoSeed();
-        CarrotSeed carrotSeed = new CarrotSeed();
-        CornSeed cornSeed = new CornSeed();
         RiceSeed riceSeed = new RiceSeed();
-        EggplantSeed eggplantSeed = new EggplantSeed();
 
         // Thêm hạt giống vào inventory
-        inventoryManager.addItem(tomatoSeed, 1);
-        inventoryManager.addItem(carrotSeed, 7);
-        inventoryManager.addItem(cornSeed, 1);
-        inventoryManager.addItem(riceSeed, 1);
-        inventoryManager.addItem(eggplantSeed, 5);
-        inventoryManager.addItem(eggplantSeed, 5);
+        inventoryManager.addItem(riceSeed, 3);
 
         // Thêm tool vào inventory
         com.mygdx.game.items.tools.WateringCan wateringCan = new com.mygdx.game.items.tools.WateringCan();
@@ -361,8 +352,8 @@ public class GameLaucher extends ApplicationAdapter {
                         fishingTimer = 0f;
                         // Reset animation timer khi đổi phase
                         player.getAnimationManager().resetStateTime();
-                        // Random thời gian ngồi câu (5-15s)
-                        fishingWaitDuration = 5f + fishingRandom.nextFloat() * 10f;
+                        // Random thời gian ngồi câu (7-17s)
+                        fishingWaitDuration = 7f + fishingRandom.nextFloat() * 10f;
                     }
                 } else if (fishingPhase == 1) { // FISH_WAIT
                     player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_WAIT);

@@ -75,7 +75,7 @@ public abstract class Item {
     public String getName() { return name; }
     public String getDescription() { return description; }
     public int getPrice() { return price; }
-    public int getSellPrice() { return price / 2; }
+    public int getSellPrice() { return price; }
     public void setPrice(int price) { this.price = price; }
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }

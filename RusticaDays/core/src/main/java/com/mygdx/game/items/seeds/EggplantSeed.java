@@ -25,7 +25,7 @@ public class EggplantSeed extends Seed {
         super(
             "Cabbage Seed",                                // Tên
             "Seed to grow cabbage",                // Mô tả
-            45,                                           // Giá mua
+            250,                                           // Giá mua
             loadDefaultTexture(),                         // Texture
             "com.mygdx.game.entities.plants.types.Eggplant" // Tên class cây trồng
         );

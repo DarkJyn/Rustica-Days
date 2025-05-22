@@ -65,14 +65,14 @@ public class ShopUI{
     private boolean isCloseButtonPressed;
 
     // Giá của các loại hạt giống
-    private static final int RICE_SEED_PRICE = 30;
-    private static final int TOMATO_SEED_PRICE = 50;
-    private static final int CARROT_SEED_PRICE = 40;
-    private static final int CABBAGE_SEED_PRICE = 45;
-    private static final int STRAWBERRY_SEED_PRICE = 60;
-    private static final int PUMPKIN_SEED_PRICE = 30;
-    private static final int GARLIC_SEED_PRICE = 30;
-    private static final int RADISH_SEED_PRICE = 30;
+    private static final int RICE_SEED_PRICE = 10;
+    private static final int TOMATO_SEED_PRICE = 30;
+    private static final int PUMPKIN_SEED_PRICE = 50;
+    private static final int RADISH_SEED_PRICE = 55;
+    private static final int GARLIC_SEED_PRICE = 70;
+    private static final int CARROT_SEED_PRICE = 100;
+    private static final int CABBAGE_SEED_PRICE = 200;
+    private static final int STRAWBERRY_SEED_PRICE = 500;
 
     public ShopUI(InventoryManager inventoryManager, InventoryUI inventoryUI, StatsBar statsBar) {
         shapeRenderer = new ShapeRenderer();
@@ -113,14 +113,14 @@ public class ShopUI{
             batch.end();
             batch.begin();
             batch.draw(ShopUI, shopX, shopY, shopWidth, shopHeight);
-            
+
             // Vẽ nút đóng với texture tương ứng
             if (isCloseButtonPressed) {
                 batch.draw(closeButtonPressed, closeButtonRectangle.x, closeButtonRectangle.y, closeButtonRectangle.width, closeButtonRectangle.height);
             } else {
                 batch.draw(closeButton, closeButtonRectangle.x, closeButtonRectangle.y, closeButtonRectangle.width, closeButtonRectangle.height);
             }
-            
+
             // Vẽ các nút Buy với texture tương ứng
             drawBuyButton(batch, buyRiceButtonRectangle);
             drawBuyButton(batch, buyTomatoButtonRectangle);
@@ -130,7 +130,7 @@ public class ShopUI{
             drawBuyButton(batch, buyPumpkinButtonRectangle);
             drawBuyButton(batch, buyGarlicButtonRectangle);
             drawBuyButton(batch, buyRadishButtonRectangle);
-            
+
             handleShopInput();
         }
     }
