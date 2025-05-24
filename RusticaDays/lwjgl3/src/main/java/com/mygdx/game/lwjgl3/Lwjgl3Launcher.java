@@ -2,7 +2,7 @@ package com.mygdx.game.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.mygdx.game.GameLaucher;
+import com.mygdx.game.MainApplication;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -12,7 +12,8 @@ public class Lwjgl3Launcher {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new GameLaucher(), getDefaultConfiguration());
+        // Thay đổi từ GameLaucher sang MainApplication
+        return new Lwjgl3Application(new MainApplication(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -46,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-public class GameLaucher extends ApplicationAdapter {
+public class GameLaucher extends Game {
     private SpriteBatch batch;
     private GameCamera camera;
     private MapRenderer mapRenderer;

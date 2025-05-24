@@ -1,0 +1,12 @@
+MenuBG.png
+size: 630, 500
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+MenuBG
+  rotate: false
+  xy: 0, 0
+  size: 630, 500
+  orig: 630, 500
+  offset: 0, 0
+  index: -1
