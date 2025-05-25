@@ -4,7 +4,6 @@ import com.badlogic.gdx.Screen;
 
 public class GameWrapper implements Screen {
     private GameLaucher gameLaucher;
-
     public GameWrapper() {
         gameLaucher = new GameLaucher();
     }

@@ -170,7 +170,7 @@ public class GameLaucher extends Game {
         addInitialItems();
 
         // Khởi tạo Player
-        player = new Player(370, 400, "Player.png", inventoryManager);
+        player = new Player(650, 350, "Player.png", inventoryManager);
 
         // Khởi tạo Sleep System
         sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player,camera);
