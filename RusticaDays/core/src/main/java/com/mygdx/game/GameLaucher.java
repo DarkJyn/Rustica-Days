@@ -43,7 +43,8 @@ import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
 import com.mygdx.game.module.SleepSystem; // Import SleepSystem
 import com.mygdx.game.ui.PauseScreen; // Import PauseScreen
-
+import com.mygdx.game.entities.animals.CowManager;
+import com.mygdx.game.entities.animals.ChickenManager;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -121,6 +122,12 @@ public class GameLaucher extends Game {
 
     // Quản lý âm thanh
     private SoundManager soundManager;
+
+    // Initialize cow manager
+    private CowManager cowManager;
+
+    // Initialize chicken manager
+    private ChickenManager chickenManager;
 
     @Override
     public void create() {
@@ -218,9 +225,12 @@ public class GameLaucher extends Game {
 
         // Thêm vật phẩm và tiền khởi đầu cho game mới
         addInitialItems();
-
-        // Khởi tạo PauseScreen
         pauseScreen = new PauseScreen(this);
+        // Initialize cow manager
+        cowManager = new CowManager();
+
+        // Initialize chicken manager
+        chickenManager = new ChickenManager();
     }
 
     // Phương thức hiển thị hiệu ứng Level Up
@@ -554,6 +564,19 @@ public class GameLaucher extends Game {
             batch.end();
         }
 
+        // Update and render cows
+        cowManager.update(Gdx.graphics.getDeltaTime());
+        batch.setProjectionMatrix(camera.getCamera().combined);
+        batch.begin();
+        cowManager.render(batch);
+        batch.end();
+
+        // Update and render chickens
+        chickenManager.update(Gdx.graphics.getDeltaTime());
+        batch.setProjectionMatrix(camera.getCamera().combined);
+        batch.begin();
+        chickenManager.render(batch);
+        batch.end();
 
         uiStage.act(delta);
         uiStage.draw();
@@ -777,6 +800,14 @@ public class GameLaucher extends Game {
 
         if (pauseScreen != null) {
             pauseScreen.dispose();
+        // Dispose cow manager
+        if (cowManager != null) {
+            cowManager.dispose();
+        }
+
+        // Dispose chicken manager
+        if (chickenManager != null) {
+            chickenManager.dispose();
         }
     }
 
