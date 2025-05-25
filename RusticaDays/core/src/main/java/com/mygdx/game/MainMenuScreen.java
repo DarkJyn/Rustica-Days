@@ -87,6 +87,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 mainApp.startNewGame();
+                mainApp.saveGame(); // Save the default state when starting a new game
             }
         });
 
