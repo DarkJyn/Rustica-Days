@@ -1,9 +1,9 @@
 {
-  "playerX": 370.0,
-  "playerY": 400.0,
+  "playerX": 487.10138,
+  "playerY": 145.74852,
   "playerLevel": 1,
-  "playerExperience": 0.0,
-  "playerStamina": 100.0,
+  "playerExperience": 10.0,
+  "playerStamina": 60.0,
   "playerMoney": 10,
   "inventoryItems": [
     {
@@ -20,6 +20,10 @@
     },
     {
       "name": "Cần câu",
+      "quantity": 1
+    },
+    {
+      "name": "Fish_FISH5",
       "quantity": 1
     }
   ],

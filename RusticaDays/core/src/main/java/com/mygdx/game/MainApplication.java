@@ -63,20 +63,6 @@ public class MainApplication extends Game {
     public void render() {
         super.render();
 
-        // Auto save logic
-        if (gameWrapper != null) {
-            autoSaveTimer += Gdx.graphics.getDeltaTime();
-            if (autoSaveTimer >= AUTO_SAVE_INTERVAL) {
-                saveGame();
-                autoSaveTimer = 0f;
-            }
-        }
-    }
-
-    @Override
-    public void render() {
-        super.render();
-
         // Vẽ custom cursor
         cursorBatch.begin();
         float cursorX = Gdx.input.getX() - cursorOffsetX;
@@ -85,6 +71,14 @@ public class MainApplication extends Game {
         float scaledHeight = cursorTexture.getHeight() * cursorScale;
         cursorBatch.draw(cursorTexture, cursorX, cursorY, scaledWidth, scaledHeight);
         cursorBatch.end();
+        // Auto save logic
+        if (gameWrapper != null) {
+            autoSaveTimer += Gdx.graphics.getDeltaTime();
+            if (autoSaveTimer >= AUTO_SAVE_INTERVAL) {
+                saveGame();
+                autoSaveTimer = 0f;
+            }
+        }
     }
 
     // Phương thức để hiển thị tutorial
