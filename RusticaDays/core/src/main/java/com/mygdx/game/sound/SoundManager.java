@@ -14,13 +14,10 @@ public class SoundManager {
     private Sound waterSound;
     private Sound shoppingSound;
     private Sound levelUpSound;
+    private Sound fishingSound;
 
     public SoundManager() {
         bgm = Gdx.audio.newMusic(Gdx.files.internal("audio/Background_music.mp3"));
-        bgm.setLooping(true); // lặp vô hạn
-        bgm.setVolume(0.5f); // điều chỉnh nếu muốn nhỏ hơn
-        bgm.play(); // bắt đầu nhạc nền
-
         healingSound = Gdx.audio.newSound(Gdx.files.internal("audio/Healing_mana.mp3"));
         inventoryOpenSound = Gdx.audio.newSound(Gdx.files.internal("audio/Inventory_open.mp3"));
         pickingUpItemsSound = Gdx.audio.newSound(Gdx.files.internal("audio/Picking_up_items.mp3"));
@@ -28,6 +25,24 @@ public class SoundManager {
         waterSound = Gdx.audio.newSound(Gdx.files.internal("audio/watering.mp3"));
         shoppingSound = Gdx.audio.newSound(Gdx.files.internal("audio/Shopping.mp3"));
         levelUpSound = Gdx.audio.newSound(Gdx.files.internal("audio/Level_up.mp3"));
+        fishingSound = Gdx.audio.newSound(Gdx.files.internal("audio/BubbleSound.mp3"));
+    }
+
+    public void playBackroundMusic() {
+        bgm.setLooping(true);
+        bgm.setVolume(0.5f);
+        bgm.play();
+    }
+
+    public void playFishingSound() {
+        bgm.setVolume(0.25f); // giảm âm lượng
+        fishingSound.play();
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                bgm.setVolume(0.5f); // tăng lại sau 1s
+            }
+        }, 1.5f);
     }
 
     public void playHealingSound() {
@@ -121,6 +136,6 @@ public class SoundManager {
         waterSound.dispose();
         shoppingSound.dispose();
         levelUpSound.dispose();
-        //fishSound.dispose();
+        fishingSound.dispose();
     }
 }

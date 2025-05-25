@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState;
+import com.mygdx.game.sound.SoundManager;
 
 public class SleepSystem {
     private Vector2 bedPosition;
@@ -30,6 +31,7 @@ public class SleepSystem {
     private boolean sleeping = false;
     private boolean sleepAnimationPlaying = false;
     private boolean sleepEnd = false;
+    private SoundManager soundManager = new SoundManager();
 
     // Animation variables
     private float fadeAlpha = 0f;
@@ -74,6 +76,7 @@ public class SleepSystem {
 
         // Handle sleep input
         if (nearBed && Gdx.input.isKeyJustPressed(Input.Keys.F) && !sleepAnimationPlaying) {
+            soundManager.playHealingSound();
             startSleep();
         }
 
