@@ -126,7 +126,12 @@ public class SoundManager {
             }
         }, 1.5f);
     }
-
+    public void setMuted(){
+        bgm.setVolume(0f);
+    }
+    public void setUnMuted(){
+        bgm.setVolume(0.5f);
+    }
     public void dispose() {
         bgm.dispose();
         healingSound.dispose();

@@ -42,6 +42,7 @@ import com.mygdx.game.sound.SoundManager;
 import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
 import com.mygdx.game.module.SleepSystem; // Import SleepSystem
+import com.mygdx.game.ui.PauseScreen; // Import PauseScreen
 import com.mygdx.game.entities.animals.CowManager;
 import com.mygdx.game.entities.animals.ChickenManager;
 
@@ -73,6 +74,8 @@ public class GameLaucher extends Game {
     private Animation<TextureRegion> spaceButtonAnimation;
     private RenderManager renderManager;
     private BitmapFont font;
+    private PauseScreen pauseScreen; // Thêm biến cho PauseScreen
+    private MainApplication mainApp; // Thêm biến cho MainApplication
 
     // Level up effect
     private LevelUpEffect levelUpEffect;
@@ -222,7 +225,7 @@ public class GameLaucher extends Game {
 
         // Thêm vật phẩm và tiền khởi đầu cho game mới
         addInitialItems();
-
+        pauseScreen = new PauseScreen(this);
         // Initialize cow manager
         cowManager = new CowManager();
 
@@ -267,6 +270,21 @@ public class GameLaucher extends Game {
 
     @Override
     public void render() {
+        // Kiểm tra phím ESC
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if (pauseScreen.isVisible()) {
+                pauseScreen.hide();
+            } else {
+                pauseScreen.show();
+            }
+        }
+
+        // Nếu pause screen đang hiển thị, chỉ render pause screen
+        if (pauseScreen.isVisible()) {
+            pauseScreen.render(Gdx.graphics.getDeltaTime());
+            return;
+        }
+
         float delta = Gdx.graphics.getDeltaTime();
         stateTime += Gdx.graphics.getDeltaTime();
         currentFrame = fButtonAnimation.getKeyFrame(stateTime * 2, true);
@@ -321,7 +339,8 @@ public class GameLaucher extends Game {
         }
         // Xử lý hiệu ứng hoạt ảnh câu cá (lặp lại)
         if (isFishing) {
-            soundManager.playFishingSound();
+//            soundManager.playFishingSound();
+
             boolean shouldStopFishing = false;
             String stopReason = "";
 
@@ -381,6 +400,7 @@ public class GameLaucher extends Game {
                 } else if (fishingPhase == 2) { // FISH_HOOK
                     player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_HOOK);
                     if (fishingTimer > 2.0f) {
+                        soundManager.playWaterSound();
                         fishingPhase = 3;
                         fishingTimer = 0f;
                         // Reset animation timer khi đổi phase
@@ -676,7 +696,7 @@ public class GameLaucher extends Game {
                             // Kiểm tra stamina trước khi thu hoạch
                             if (statsBar.getStamina() >= HARVESTING_STAMINA_COST) {
                                 boolean result = tool.useTool(plantManager, mouseWorldX, mouseWorldY);
-                                if (tool.getName().toLowerCase().contains("liềm")) {
+                                if (tool.getName().toLowerCase().contains("sickle")) {
                                     if (result) {
                                         System.out.println("Harvested plant at " + mouseWorldX + ", " + mouseWorldY);
                                         // Giảm stamina sau khi thu hoạch thành công
@@ -759,6 +779,10 @@ public class GameLaucher extends Game {
         uiStage.dispose();
         shapeRenderer.dispose();
 
+        if(soundManager != null){
+            soundManager.dispose();
+        }
+
         // Dispose sleep system
         if (sleepSystem != null) {
             sleepSystem.dispose();
@@ -774,6 +798,8 @@ public class GameLaucher extends Game {
             com.mygdx.game.entities.plants.base.Plant.countdownFont.dispose();
         }
 
+        if (pauseScreen != null) {
+            pauseScreen.dispose();
         // Dispose cow manager
         if (cowManager != null) {
             cowManager.dispose();
@@ -850,5 +876,16 @@ public class GameLaucher extends Game {
 
     public RenderManager getRenderManager() {
         return renderManager;
+    }
+
+    public void setMainApplication(MainApplication mainApp) {
+        this.mainApp = mainApp;
+    }
+
+    public MainApplication getMainApplication() {
+        return mainApp;
+    }
+    public SoundManager getSoundManager(){
+        return soundManager;
     }
 }

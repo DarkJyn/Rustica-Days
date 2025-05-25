@@ -4,8 +4,12 @@ import com.badlogic.gdx.Screen;
 
 public class GameWrapper implements Screen {
     private GameLaucher gameLaucher;
-    public GameWrapper() {
+    private MainApplication mainApp;
+
+    public GameWrapper(MainApplication mainApp) {
+        this.mainApp = mainApp;
         gameLaucher = new GameLaucher();
+        gameLaucher.setMainApplication(mainApp);
     }
 
     @Override

@@ -33,6 +33,7 @@ public class TutorialScreen implements Screen {
     private BitmapFont titleFont;
     private BitmapFont contentFont;
     private BitmapFont movementFont;  // Font cho chữ Movement
+    private boolean isFromMainMenu;
 
     // Background animation
     private Animation<TextureRegion> backgroundAnimation;
@@ -77,6 +78,11 @@ public class TutorialScreen implements Screen {
 
     public TutorialScreen(MainApplication mainApp) {
         this.mainApp = mainApp;
+        this.isFromMainMenu = false;
+    }
+
+    public void setFromMainMenu(boolean fromMainMenu) {
+        this.isFromMainMenu = fromMainMenu;
     }
 
     @Override
@@ -210,8 +216,8 @@ public class TutorialScreen implements Screen {
         continueButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Start the actual game
                 mainApp.startNewGame();
+                mainApp.saveGame();
             }
         });
 
@@ -220,7 +226,6 @@ public class TutorialScreen implements Screen {
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Return to main menu
                 mainApp.setScreen(new MainMenuScreen(mainApp));
             }
         });
@@ -261,8 +266,15 @@ public class TutorialScreen implements Screen {
 
         // Add button table
         Table buttonTable = new Table();
-        buttonTable.add(backButton).width(240).height(72).padRight(20);
-        buttonTable.add(continueButton).width(300).height(72);
+        if (isFromMainMenu) {
+            // Nếu mở từ nút Tutorials, chỉ hiển thị nút Back to Menu
+            buttonTable.add(backButton).width(240).height(72);
+        }
+        else{
+            // Nếu mở từ nút New Game, hiển thị cả hai nút
+            buttonTable.add(backButton).width(240).height(72).padRight(20);
+            buttonTable.add(continueButton).width(300).height(72);
+        }
 
         mainTable.add(buttonTable).padBottom(50);
 
@@ -364,8 +376,6 @@ public class TutorialScreen implements Screen {
 
     @Override
     public void dispose() {
-        stage.dispose();
-        batch.dispose();
         skin.dispose();
         titleFont.dispose();
         contentFont.dispose();

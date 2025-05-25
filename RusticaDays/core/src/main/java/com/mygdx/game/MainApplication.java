@@ -121,21 +121,21 @@ public class MainApplication extends Game {
                 }
 
                 // Load the default game state
-                gameWrapper = new GameWrapper();
+                gameWrapper = new GameWrapper(this);
                 setScreen(gameWrapper);
                 loadGame();
             } catch (IOException e) {
                 e.printStackTrace();
                 System.err.println("Failed to reset game state: " + e.getMessage());
                 // If reset fails, start a completely new game
-                gameWrapper = new GameWrapper();
+                gameWrapper = new GameWrapper(this);
                 setScreen(gameWrapper);
                 saveGame();
             }
         } else {
             // If no default save file exists, start a completely new game
-        gameWrapper = new GameWrapper();
-        setScreen(gameWrapper);
+            gameWrapper = new GameWrapper(this);
+            setScreen(gameWrapper);
             saveGame();
         }
     }
@@ -261,7 +261,7 @@ public class MainApplication extends Game {
         if (gameWrapper != null) {
             gameWrapper.dispose();
         }
-        gameWrapper = new GameWrapper();
+        gameWrapper = new GameWrapper(this);
             setScreen(gameWrapper);
 
         Gson gson = new Gson();
@@ -269,8 +269,8 @@ public class MainApplication extends Game {
             GameState gameState = gson.fromJson(reader, GameState.class);
             if (gameState != null) {
                 // Apply loaded game state to the game
-                gameWrapper.getGameLaucher().getPlayer().setX(370); // Default X position
-                gameWrapper.getGameLaucher().getPlayer().setY(400); // Default Y position
+                gameWrapper.getGameLaucher().getPlayer().setX(650); // Default X position
+                gameWrapper.getGameLaucher().getPlayer().setY(350); // Default Y position
                 gameWrapper.getGameLaucher().getStatsBar().setLevel(gameState.getPlayerLevel());
                 gameWrapper.getGameLaucher().getStatsBar().setExperience(gameState.getPlayerExperience());
                 gameWrapper.getGameLaucher().getStatsBar().setStamina(gameState.getPlayerStamina());
@@ -438,5 +438,9 @@ public class MainApplication extends Game {
         if (cursorBatch != null) {
             cursorBatch.dispose();
         }
+    }
+
+    public TutorialScreen getTutorialScreen() {
+        return tutorialScreen;
     }
 }

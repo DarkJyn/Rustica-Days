@@ -23,7 +23,7 @@ public class WateringCan extends Tool {
     }
 
     public WateringCan() {
-        super("Bình tưới nước", "Dùng để tưới cây", 50, "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Player/Player_Modular/Tools/Iron_Tools/WateringCan.png");
+        super("Watering Can", "Use to water plant", 50, "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Player/Player_Modular/Tools/Iron_Tools/WateringCan.png");
     }
 
     // Trả về hiệu ứng nếu tưới thành công, ngược lại trả về null
