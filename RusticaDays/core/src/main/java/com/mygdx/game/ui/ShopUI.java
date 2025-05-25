@@ -18,7 +18,7 @@ import com.mygdx.game.inventory.InventorySlot;
 import com.mygdx.game.items.base.Item;
 import com.mygdx.game.items.seeds.*;
 import com.mygdx.game.items.tools.WateringCan;
-
+import com.mygdx.game.sound.SoundManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +73,8 @@ public class ShopUI{
     private static final int CARROT_SEED_PRICE = 100;
     private static final int CABBAGE_SEED_PRICE = 200;
     private static final int STRAWBERRY_SEED_PRICE = 500;
+
+    SoundManager soundManager = new SoundManager();
 
     public ShopUI(InventoryManager inventoryManager, InventoryUI inventoryUI, StatsBar statsBar) {
         shapeRenderer = new ShapeRenderer();
@@ -164,6 +166,7 @@ public class ShopUI{
             // Kiểm tra các nút Buy
             else if(buyTomatoButtonRectangle.contains(mouseX, mouseY)) {
                 if (canAfford(TOMATO_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyTomatoButtonRectangle;
                     TomatoSeed tomatoSeed = new TomatoSeed();
                     inventoryManager.addItem(tomatoSeed,1);
@@ -176,6 +179,7 @@ public class ShopUI{
             }
             else if(buyCarrotButtonRectangle.contains(mouseX, mouseY)) {
                 if (canAfford(CARROT_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyCarrotButtonRectangle;
                     CarrotSeed carrotSeed = new CarrotSeed();
                     inventoryManager.addItem(carrotSeed,1);
@@ -188,6 +192,7 @@ public class ShopUI{
             }
             else if (buyCabbageButtonRectangle.contains(mouseX, mouseY)) {
                 if (canAfford(CABBAGE_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyCabbageButtonRectangle;
                     EggplantSeed eggplantSeed = new EggplantSeed();
                     inventoryManager.addItem(eggplantSeed,1);
@@ -200,6 +205,7 @@ public class ShopUI{
             }
             else if(buyStrawberryButtonRectangle.contains(mouseX,mouseY)){
                 if (canAfford(STRAWBERRY_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyStrawberryButtonRectangle;
                     CornSeed cornSeed = new CornSeed();
                     inventoryManager.addItem(cornSeed,1);
@@ -212,6 +218,7 @@ public class ShopUI{
             }
             else if(buyRiceButtonRectangle.contains(mouseX,mouseY)){
                 if (canAfford(RICE_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyRiceButtonRectangle;
                     RiceSeed riceSeed = new RiceSeed();
                     inventoryManager.addItem(riceSeed,1);
@@ -224,6 +231,7 @@ public class ShopUI{
             }
             else if(buyPumpkinButtonRectangle.contains(mouseX,mouseY)){
                 if (canAfford(PUMPKIN_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyPumpkinButtonRectangle;
                     PumpkinSeed pumpkinSeed = new PumpkinSeed();
                     inventoryManager.addItem(pumpkinSeed,1);
@@ -236,6 +244,7 @@ public class ShopUI{
             }
             else if (buyRadishButtonRectangle.contains(mouseX,mouseY)) {
                 if (canAfford(RADISH_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyRadishButtonRectangle;
                     RadishSeed radishSeed = new RadishSeed();
                     inventoryManager.addItem(radishSeed,1);
@@ -248,6 +257,7 @@ public class ShopUI{
             }
             else if(buyGarlicButtonRectangle.contains(mouseX,mouseY)) {
                 if (canAfford(GARLIC_SEED_PRICE)) {
+                    soundManager.playShoppingSound();
                     pressedButton = buyGarlicButtonRectangle;
                     GarlicSeed garlicSeed = new GarlicSeed();
                     inventoryManager.addItem(garlicSeed,1);

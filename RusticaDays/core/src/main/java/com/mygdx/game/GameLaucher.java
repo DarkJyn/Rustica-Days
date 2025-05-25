@@ -261,6 +261,9 @@ public class GameLaucher extends Game {
 
         // Quản lý âm thanh
         soundManager = new SoundManager();
+
+        // Chạy nhạc nền
+        soundManager.playBackroundMusic();
     }
 
     @Override
@@ -319,6 +322,7 @@ public class GameLaucher extends Game {
         }
         // Xử lý hiệu ứng hoạt ảnh câu cá (lặp lại)
         if (isFishing) {
+            soundManager.playFishingSound();
             boolean shouldStopFishing = false;
             String stopReason = "";
 
@@ -517,6 +521,7 @@ public class GameLaucher extends Game {
         // Kiểm tra nhấn phím I để toggle full inventory (chỉ khi không ngủ)
         if ((Gdx.input.isKeyJustPressed(Input.Keys.TAB) || Gdx.input.isKeyJustPressed(Input.Keys.I)) && !sleepSystem.shouldBlockPlayerMovement()) {
             inventoryUI.toggleInventory();
+            soundManager.playInventoryOpenSound();
         }
 
         // Xử lý tương tác với cây trồng
@@ -621,6 +626,7 @@ public class GameLaucher extends Game {
                             if (planted != null) {
                                 renderManager.add(planted);
                                 System.out.println("Planted " + seed.getName() + " at " + mouseWorldX + ", " + mouseWorldY);
+                                soundManager.playPlantSound();
                                 // Giảm stamina sau khi trồng cây thành công
                                 statsBar.decreaseStamina(PLANTING_STAMINA_COST);
                                 // Tăng kinh nghiệm
@@ -663,6 +669,8 @@ public class GameLaucher extends Game {
                                         System.out.println("Harvested plant at " + mouseWorldX + ", " + mouseWorldY);
                                         // Giảm stamina sau khi thu hoạch thành công
                                         statsBar.decreaseStamina(HARVESTING_STAMINA_COST);
+                                        // Âm thanh thu hoạch
+                                        soundManager.playPickingUpItemsSound();
                                         // Tăng kinh nghiệm khi thu hoạch
                                         statsBar.addExperience(HARVESTING_XP_REWARD);
                                         inventoryUI.updateUI();
