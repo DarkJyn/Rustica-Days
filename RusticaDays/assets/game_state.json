@@ -1,10 +1,10 @@
 {
-  "playerX": 602.0862,
-  "playerY": 269.60284,
+  "playerX": 371.7701,
+  "playerY": 375.51862,
   "playerLevel": 2,
-  "playerExperience": 5.5989885,
-  "playerStamina": 100.0,
-  "playerMoney": 10,
+  "playerExperience": 50.598988,
+  "playerStamina": 60.0,
+  "playerMoney": 55,
   "inventoryItems": [
     {
       "name": "Watering Can",
@@ -23,33 +23,5 @@
       "quantity": 1
     }
   ],
-  "plants": [
-    {
-      "type": "Rice",
-      "row": 0,
-      "col": 0,
-      "growthState": "MATURE",
-      "growthTimer": 0.0,
-      "waterTimer": 260.78638,
-      "needsWater": true
-    },
-    {
-      "type": "Rice",
-      "row": 0,
-      "col": 1,
-      "growthState": "MATURE",
-      "growthTimer": 0.0,
-      "waterTimer": 260.3554,
-      "needsWater": true
-    },
-    {
-      "type": "Rice",
-      "row": 0,
-      "col": 2,
-      "growthState": "MATURE",
-      "growthTimer": 0.0,
-      "waterTimer": 259.97357,
-      "needsWater": true
-    }
-  ]
+  "plants": []
 }

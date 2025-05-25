@@ -506,6 +506,20 @@ public class GameLaucher extends Game {
         sleepSystem.render(batch);
         batch.end();
 
+        // Update and render cows
+        cowManager.update(Gdx.graphics.getDeltaTime());
+        batch.setProjectionMatrix(camera.getCamera().combined);
+        batch.begin();
+        cowManager.render(batch);
+        batch.end();
+
+        // Update and render chickens
+        chickenManager.update(Gdx.graphics.getDeltaTime());
+        batch.setProjectionMatrix(camera.getCamera().combined);
+        batch.begin();
+        chickenManager.render(batch);
+        batch.end();
+
         // Render StatsBar
         statsBar.render(batch);
 
@@ -563,20 +577,6 @@ public class GameLaucher extends Game {
             batch.draw(currentSpaceFrame,player.getPosition().x + 20 , player.getPosition().y - 5, 144, 48);
             batch.end();
         }
-
-        // Update and render cows
-        cowManager.update(Gdx.graphics.getDeltaTime());
-        batch.setProjectionMatrix(camera.getCamera().combined);
-        batch.begin();
-        cowManager.render(batch);
-        batch.end();
-
-        // Update and render chickens
-        chickenManager.update(Gdx.graphics.getDeltaTime());
-        batch.setProjectionMatrix(camera.getCamera().combined);
-        batch.begin();
-        chickenManager.render(batch);
-        batch.end();
 
         uiStage.act(delta);
         uiStage.draw();
@@ -779,7 +779,7 @@ public class GameLaucher extends Game {
         uiStage.dispose();
         shapeRenderer.dispose();
 
-        if(soundManager != null){
+        if (soundManager != null) {
             soundManager.dispose();
         }
 
@@ -800,17 +800,17 @@ public class GameLaucher extends Game {
 
         if (pauseScreen != null) {
             pauseScreen.dispose();
-        // Dispose cow manager
-        if (cowManager != null) {
-            cowManager.dispose();
-        }
+            // Dispose cow manager
+            if (cowManager != null) {
+                cowManager.dispose();
+            }
 
-        // Dispose chicken manager
-        if (chickenManager != null) {
-            chickenManager.dispose();
+            // Dispose chicken manager
+            if (chickenManager != null) {
+                chickenManager.dispose();
+            }
         }
     }
-
     // Phương thức kiểm tra level up để gọi từ bên ngoài (nếu cần)
     public void triggerLevelUpEffect() {
         showLevelUpEffect();
