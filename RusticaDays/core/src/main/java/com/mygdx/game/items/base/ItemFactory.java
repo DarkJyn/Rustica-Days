@@ -4,15 +4,15 @@ public class ItemFactory {
     public static Item createItemByName(String name) {
         System.out.println("Creating item with name: " + name);
         // Create tools
-        if (name.equals("Bình tưới nước")) {
+        if (name.equals("Watering Can")) {
             System.out.println("Creating WateringCan");
             return new com.mygdx.game.items.tools.WateringCan();
         }
-        if (name.equals("Liềm")) {
+        if (name.equals("Sickle")) {
             System.out.println("Creating Sickle");
             return new com.mygdx.game.items.tools.Sickle();
         }
-        if (name.equals("Cần câu")) {
+        if (name.equals("Fishing Rod")) {
             System.out.println("Creating FishingRod");
             return new com.mygdx.game.items.tools.FishingRod();
         }

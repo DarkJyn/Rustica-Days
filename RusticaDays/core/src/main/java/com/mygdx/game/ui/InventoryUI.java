@@ -91,15 +91,23 @@ public class InventoryUI {
     }
 
     public void setIndex(int selectedIndex) {
+        System.out.println("Setting index to: " + selectedIndex);
+        System.out.println("Total slots: " + quickbarHighlightImages.size);
+        
         for (int i = 0; i < quickbarHighlightImages.size; i++) {
             Image highlight = quickbarHighlightImages.get(i);
             highlight.clearActions(); // Dừng nháy nếu có
 
             if (i == selectedIndex) {
                 highlight.setVisible(true);
+                highlight.setColor(1, 1, 1, 1); // Đặt màu trắng đục
                 highlight.addAction(quickbarBlinkActions.get(i)); // Bắt đầu nhấp nháy
+                System.out.println("Selected slot " + (i + 1) + " - Showing background and blink effect");
+                System.out.println("Highlight visible: " + highlight.isVisible());
+                System.out.println("Highlight alpha: " + highlight.getColor().a);
             } else {
                 highlight.setVisible(false); // Tắt các ô khác
+                highlight.clearActions(); // Đảm bảo dừng hiệu ứng nhấp nháy
             }
         }
     }
@@ -131,7 +139,7 @@ public class InventoryUI {
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 6; col++) {
                 Stack slotStack = createSlotStack(index);
-                inventoryTable.add(slotStack).pad(15).size(60, 60).center();
+                inventoryTable.add(slotStack).pad(15).size(48, 60).center();
                 index++;
             }
             inventoryTable.row();
@@ -151,7 +159,8 @@ public class InventoryUI {
         Image slotBackground = new Image(new TextureRegion(slotTexture));
         slotBackground.setSize(70, 70);  // Kích thước lớn hơn
         slotBackground.setOrigin(Align.center); // Cho phép scale
-        slotStack.add(slotBackground); // Thêm trước item
+        slotBackground.setVisible(false); // Mặc định ẩn slotBackground
+        slotBackground.setColor(1, 1, 1, 1); // Đặt màu trắng đục
         quickbarHighlightImages.add(slotBackground);
 
         // Tạo hiệu ứng nhấp nháy + scale
@@ -167,7 +176,6 @@ public class InventoryUI {
                 )
             )
         );
-        slotBackground.addAction(blinkAction);
         quickbarBlinkActions.add(blinkAction);
 
         // Nếu slot có vật phẩm, hiển thị vật phẩm lên trên slot
@@ -192,12 +200,8 @@ public class InventoryUI {
             }
         }
 
-        // Đảm bảo background luôn nằm dưới cùng
-        slotStack.addActorAt(0, slotBackground);
-
-        slotStack.removeActor(slotBackground);
-        slotStack.addActor(slotBackground); // Add lại để đưa lên trên cùng
-
+        // Thêm slotBackground vào cuối cùng để nó nằm trên cùng
+        slotStack.add(slotBackground);
 
         // Gắn chỉ số index vào Stack để xử lý drag-drop
         slotStack.setUserObject(index);

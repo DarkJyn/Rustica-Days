@@ -4,7 +4,7 @@ import com.mygdx.game.entities.plants.PlantManager;
 
 public class FishingRod extends Tool {
     public FishingRod() {
-        super("Cần câu", "Dùng để câu cá", 100, "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Player/Player_Modular/Tools/Iron_Tools/FishingRod.png");
+        super("Fishing Rod", "Use to Fishing", 100, "[Rustica] Asset/Cute_Fantasy/Cute_Fantasy/Player/Player_Modular/Tools/Iron_Tools/FishingRod.png");
     }
 
     @Override

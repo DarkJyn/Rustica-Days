@@ -125,7 +125,6 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 mainApp.showTutorial();
-                mainApp.saveGame(); // Save the default state when starting a new game
             }
         });
 
@@ -138,13 +137,14 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        settingsButton = new TextButton("Settings", skin);
+        settingsButton = new TextButton("Tutorials", skin);
         settingsButton.getLabel().setFontScale(1.5f);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Implement settings screen
-                System.out.println("Settings clicked - Not implemented yet");
+                mainApp.getTutorialScreen().setFromMainMenu(true);
+                mainApp.showTutorial();
+                mainApp.getTutorialScreen().setFromMainMenu(false);
             }
         });
 

@@ -208,7 +208,7 @@ public abstract class Plant implements GameObject {
 
         // Xác định nội dung và màu sắc dựa vào trạng thái
         if (growthState == GrowthState.MATURE) {
-            text = "Thu hoạch!";
+            text = "Harvest!";
             textColor = new Color(0, 1, 0, 1); // Màu xanh lá
         } else if (growthState == GrowthState.HARVESTED) {
             return; // Không hiện gì cho cây đã thu hoạch
@@ -353,7 +353,7 @@ public abstract class Plant implements GameObject {
 
         // Thiết lập tham số font
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 6; // Kích thước font
+        parameter.size = 15; // Kích thước font
         parameter.color = Color.WHITE;
         parameter.borderWidth = 1;
         parameter.borderColor = Color.BLACK;
