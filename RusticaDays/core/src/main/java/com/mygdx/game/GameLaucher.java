@@ -38,6 +38,7 @@ import com.mygdx.game.items.seeds.EggplantSeed;
 import com.mygdx.game.items.tools.WateringCan;
 import com.mygdx.game.render.MapRenderer;
 import com.mygdx.game.render.RenderManager;
+import com.mygdx.game.sound.SoundManager;
 import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
 import com.mygdx.game.module.SleepSystem; // Import SleepSystem
@@ -115,6 +116,9 @@ public class GameLaucher extends Game {
     private float fishingWaitDuration = 0f; // Thời gian ngồi câu random
     private Random fishingRandom = new Random();
 
+    // Quản lý âm thanh
+    private SoundManager soundManager;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -141,13 +145,10 @@ public class GameLaucher extends Game {
         uiStage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(uiStage);
 
-        font = new BitmapFont();
-        font.setColor(Color.WHITE);
-
-        // Khởi tạo font Pixellari từ file TTF
+        // Khởi tạo font
         initFont();
 
-        // Inventory Logic + UI
+        // Khởi tạo Inventory
         inventoryManager = new InventoryManager(42);
         inventoryUI = new InventoryUI(uiStage, inventoryManager);
         uiStage.addActor(inventoryUI.getQuickBar());
@@ -159,57 +160,44 @@ public class GameLaucher extends Game {
                 if (selectedSlotIndex == slotIndex) {
                     selectedSlotIndex = -1;
                     System.out.println("Unselected slot");
+                    //inventoryUI.setIndex(-1);
                 } else {
                     selectedSlotIndex = slotIndex;
                     System.out.println("Selected slot " + (selectedSlotIndex + 1));
+                    //inventoryUI.setIndex(selectedSlotIndex);
                 }
             }
         });
 
-        // Thêm các mặt hàng vào inventory cho test
-        addInitialItems();
-
         // Khởi tạo Player
         player = new Player(650, 350, "Player.png", inventoryManager);
 
-        // Khởi tạo Sleep System
-        sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player,camera);
-
-        // Khởi tạo NPC
-        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI,statsBar);
-
-        // Khởi tạp nhận Input
-        inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
-        inputHandler.registerNPC(shopkeeper);
-
-        // Stats Bar
+        // Khởi tạo StatsBar
         statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(10);
         statsBar.setExperience(0);
         statsBar.setStamina(100);
 
-        // Khởi tạo NPC
+        // Khởi tạo Shopkeeper
         shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI, statsBar);
-        shopkeeper.setStage(uiStage); // Đảm bảo SellUI có stage
+        shopkeeper.setStage(uiStage);
 
-        // Khởi tạp nhận Input
+        // Khởi tạo Input Handler
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
         inputHandler.registerNPC(shopkeeper);
 
         // Khởi tạo PlantManager
         plantManager = new PlantManager(inventoryManager);
 
-        renderManager = new RenderManager();
+        // Khởi tạo SleepSystem
+        sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player, camera);
 
-        // Thêm tất cả đối tượng vào RenderManager
+        // Khởi tạo RenderManager
+        renderManager = new RenderManager();
         renderManager.add(player);
 
-        // Khởi tạo hiệu ứng Level Up
+        // Khởi tạo Level Up Effect
         levelUpEffect = new LevelUpEffect();
-
-        // Đăng ký listener cho level up event
         statsBar.setLevelUpListener(new StatsBar.LevelUpListener() {
             @Override
             public void onLevelUp(int newLevel) {
@@ -217,18 +205,24 @@ public class GameLaucher extends Game {
             }
         });
 
+        // Khởi tạo các animation
         fButton = new Texture("FbuttonAni.png");
         spaceButton = new Texture("SpaceAni.png");
         createAnimations();
         stateTime = 0f;
         currentFrame = fButtonAnimation.getKeyFrame(0);
         currentSpaceFrame = spaceButtonAnimation.getKeyFrame(0);
+
+        // Thêm vật phẩm và tiền khởi đầu cho game mới
+        addInitialItems();
     }
 
     // Phương thức hiển thị hiệu ứng Level Up
     private void showLevelUpEffect() {
         // Khởi động hiệu ứng level up ở giữa màn hình
         levelUpEffect.start(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // new sound
+        soundManager.playLevelUpSound();
         System.out.println("Level Up! Current level: " + statsBar.getLevel());
     }
 
@@ -250,6 +244,12 @@ public class GameLaucher extends Game {
 
         // Cập nhật UI sau khi thêm vật phẩm
         inventoryUI.updateUI();
+
+        // Quản lý âm thanh
+        soundManager = new SoundManager();
+
+        // Chạy nhạc nền
+        soundManager.playBackroundMusic();
     }
 
     @Override
@@ -308,6 +308,7 @@ public class GameLaucher extends Game {
         }
         // Xử lý hiệu ứng hoạt ảnh câu cá (lặp lại)
         if (isFishing) {
+            soundManager.playFishingSound();
             boolean shouldStopFishing = false;
             String stopReason = "";
 
@@ -506,6 +507,7 @@ public class GameLaucher extends Game {
         // Kiểm tra nhấn phím I để toggle full inventory (chỉ khi không ngủ)
         if ((Gdx.input.isKeyJustPressed(Input.Keys.TAB) || Gdx.input.isKeyJustPressed(Input.Keys.I)) && !sleepSystem.shouldBlockPlayerMovement()) {
             inventoryUI.toggleInventory();
+            soundManager.playInventoryOpenSound();
         }
 
         // Xử lý tương tác với cây trồng
@@ -561,11 +563,15 @@ public class GameLaucher extends Game {
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1 + i)) {
                 if (selectedSlotIndex == i) {
                     selectedSlotIndex = -1;
+                    inventoryUI.setIndex(-1);
                     System.out.println("Unselected slot");
+
                 } else {
                     selectedSlotIndex = i;
+                    inventoryUI.setIndex(selectedSlotIndex);
                     System.out.println("Selected slot " + (selectedSlotIndex + 1));
                 }
+
             }
         }
 
@@ -606,6 +612,7 @@ public class GameLaucher extends Game {
                             if (planted != null) {
                                 renderManager.add(planted);
                                 System.out.println("Planted " + seed.getName() + " at " + mouseWorldX + ", " + mouseWorldY);
+                                soundManager.playPlantSound();
                                 // Giảm stamina sau khi trồng cây thành công
                                 statsBar.decreaseStamina(PLANTING_STAMINA_COST);
                                 // Tăng kinh nghiệm
@@ -627,6 +634,7 @@ public class GameLaucher extends Game {
                                 WateringCan wc = (WateringCan) tool;
                                 WateringEffect effect = wc.useToolWithEffect(plantManager, mouseWorldX, mouseWorldY);
                                 if (effect != null) {
+                                    soundManager.playWaterSound();
                                     wateringEffects.add(effect);
                                     System.out.println("Watered plant at " + mouseWorldX + ", " + mouseWorldY);
                                     // Giảm stamina sau khi tưới nước thành công
@@ -647,6 +655,8 @@ public class GameLaucher extends Game {
                                         System.out.println("Harvested plant at " + mouseWorldX + ", " + mouseWorldY);
                                         // Giảm stamina sau khi thu hoạch thành công
                                         statsBar.decreaseStamina(HARVESTING_STAMINA_COST);
+                                        // Âm thanh thu hoạch
+                                        soundManager.playPickingUpItemsSound();
                                         // Tăng kinh nghiệm khi thu hoạch
                                         statsBar.addExperience(HARVESTING_XP_REWARD);
                                         inventoryUI.updateUI();
@@ -698,6 +708,7 @@ public class GameLaucher extends Game {
         // Tạo font từ generator và parameter
         font = generator.generateFont(parameter);
     }
+
 
     @Override
     public void resize(int width, int height) {
@@ -776,5 +787,32 @@ public class GameLaucher extends Game {
         }
 
         spaceButtonAnimation = new Animation<>(2, spaceButtonFrames);
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public StatsBar getStatsBar() {
+        return statsBar;
+    }
+
+    public InventoryManager getInventoryManager() {
+        return inventoryManager;
+    }
+
+    public InventoryUI getInventoryUI() {
+        return inventoryUI;
+    }
+
+    /**
+     * Lấy PlantManager để có thể truy cập và thao tác với cây trồng
+     */
+    public PlantManager getPlantManager() {
+        return plantManager;
+    }
+
+    public RenderManager getRenderManager() {
+        return renderManager;
     }
 }

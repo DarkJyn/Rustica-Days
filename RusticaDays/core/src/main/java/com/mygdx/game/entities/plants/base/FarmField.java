@@ -16,12 +16,12 @@ public class FarmField {
     public static final float FIELD_TOP = 397.8851f;
     public static final float FIELD_BOTTOM = 322.8851f;
 
-    private Plant[][] grid;
+    private Plant[][] plants;
     private float cellWidth;
     private float cellHeight;
 
     public FarmField() {
-        grid = new Plant[ROWS][COLS];
+        plants = new Plant[ROWS][COLS];
         cellWidth = (FIELD_RIGHT - FIELD_LEFT) / COLS;
         cellHeight = (FIELD_TOP - FIELD_BOTTOM) / ROWS;
     }
@@ -50,9 +50,9 @@ public class FarmField {
      * Trồng cây vào ô (row, col), trả về true nếu thành công
      */
     public boolean plantAt(int row, int col, Plant plant) {
-        if (!isValidCell(row, col) || grid[row][col] != null) return false;
+        if (!isValidCell(row, col) || plants[row][col] != null) return false;
         // Không thay đổi bounds của cây nữa
-        grid[row][col] = plant;
+        plants[row][col] = plant;
         return true;
     }
 
@@ -61,14 +61,14 @@ public class FarmField {
      */
     public Plant getPlantAt(int row, int col) {
         if (!isValidCell(row, col)) return null;
-        return grid[row][col];
+        return plants[row][col];
     }
 
     /**
      * Xóa cây tại ô (row, col)
      */
     public void removePlantAt(int row, int col) {
-        if (isValidCell(row, col)) grid[row][col] = null;
+        if (isValidCell(row, col)) plants[row][col] = null;
     }
 
     /**
@@ -84,7 +84,7 @@ public class FarmField {
     public void render(SpriteBatch batch) {
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                Plant plant = grid[row][col];
+                Plant plant = plants[row][col];
                 if (plant != null) {
                     plant.render(batch);
                 }
@@ -98,7 +98,7 @@ public class FarmField {
     public void renderCountdowns(SpriteBatch batch) {
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                Plant plant = grid[row][col];
+                Plant plant = plants[row][col];
                 if (plant != null) {
                     plant.renderCountdown(batch);
                 }
@@ -119,7 +119,7 @@ public class FarmField {
      * Lấy toàn bộ lưới cây
      */
     public Plant[][] getGrid() {
-        return grid;
+        return plants;
     }
 
     public float getCellWidth() {
@@ -127,5 +127,20 @@ public class FarmField {
     }
     public float getCellHeight() {
         return cellHeight;
+    }
+
+    /**
+     * Đặt cây vào vị trí cụ thể trong ruộng
+     * @param row Hàng
+     * @param col Cột
+     * @param plant Cây cần đặt
+     * @return true nếu đặt thành công, false nếu vị trí không hợp lệ hoặc đã có cây
+     */
+    public boolean setPlantAt(int row, int col, Plant plant) {
+        if (isValidCell(row, col)) {
+            plants[row][col] = plant;
+            return true;
+        }
+        return false;
     }
 }

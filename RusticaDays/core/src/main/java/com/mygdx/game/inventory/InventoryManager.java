@@ -42,7 +42,6 @@ public class InventoryManager {
             if (!slot.isEmpty() && slot.getItem().equals(item)) {
                 if (slot.getQuantity() == 1){
                     slot.clear();
-
                 }
                 else {
                     slot.setItem(slot.getItem(), slot.getQuantity() - 1);
@@ -63,6 +62,40 @@ public class InventoryManager {
                 return;
             }
         }
+    }
+
+    public void setInventoryItems(List<InventoryItemState> itemStates) {
+        // Xóa sạch inventory hiện tại
+        for (InventorySlot slot : slots) {
+            slot.clear();
+        }
+        // Thêm lại các item từ danh sách tên và số lượng
+        for (InventoryItemState itemState : itemStates) {
+            Item item = com.mygdx.game.items.base.ItemFactory.createItemByName(itemState.getName());
+            if (item != null) {
+                addItem(item, itemState.getQuantity());
+            }
+        }
+    }
+
+    public List<InventoryItemState> getInventoryItems() {
+        List<InventoryItemState> itemStates = new ArrayList<>();
+        for (InventorySlot slot : slots) {
+            if (!slot.isEmpty()) {
+                Item item = slot.getItem();
+                String itemName;
+                if (item instanceof com.mygdx.game.items.animalproducts.FishItem) {
+                    // Special handling for fish items
+                    com.mygdx.game.items.animalproducts.FishItem fishItem = (com.mygdx.game.items.animalproducts.FishItem) item;
+                    itemName = "Fish_" + fishItem.getFishType().name();
+                } else {
+                    itemName = item.getName();
+                }
+                itemStates.add(new InventoryItemState(itemName, slot.getQuantity()));
+                System.out.println("Saving item: " + itemName + " with quantity: " + slot.getQuantity());
+            }
+        }
+        return itemStates;
     }
 }
 

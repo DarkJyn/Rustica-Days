@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.inventory.InventoryManager;
 import com.mygdx.game.inventory.InventorySlot;
 import com.mygdx.game.items.base.Item;
+import com.mygdx.game.sound.SoundManager;
 import com.mygdx.game.ui.StatsBar;
 
 public class SellUI {
@@ -38,6 +39,7 @@ public class SellUI {
     private BitmapFont tooltipFont;
     private StatsBar statsBar; // Để cập nhật tiền khi bán
     private Stage stage;
+    private SoundManager soundManager = new SoundManager();
 
     public SellUI(InventoryManager inventoryManager, InventoryUI inventoryUI, StatsBar statsBar) {
         this.inventoryManager = inventoryManager;
@@ -261,6 +263,7 @@ public class SellUI {
 
             // Thêm tiền vào ví người chơi
             statsBar.addMoney(sellPrice);
+            soundManager.playShoppingSound();
 
             // Giảm số lượng vật phẩm trong inventory
             inventoryManager.removeItem(item);

@@ -10,6 +10,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.badlogicgames.gdx:gdx-freetype:1.13.1" level="project" />
     <orderEntry type="library" name="Gradle: com.badlogicgames.gdx:gdx:1.13.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.10.1" level="project" />
     <orderEntry type="library" name="Gradle: com.badlogicgames.gdx:gdx-jnigen-loader:2.5.2" level="project" />
   </component>
 </module>

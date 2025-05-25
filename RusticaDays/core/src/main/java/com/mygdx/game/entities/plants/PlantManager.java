@@ -211,6 +211,9 @@ public class PlantManager {
         return allPlants;
     }
 
+    /**
+     * Lấy FarmField để có thể truy cập và thao tác với cây trồng
+     */
     public FarmField getFarmField() {
         return farmField;
     }

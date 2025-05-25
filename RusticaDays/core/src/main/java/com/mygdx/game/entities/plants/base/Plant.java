@@ -353,7 +353,7 @@ public abstract class Plant implements GameObject {
 
         // Thiết lập tham số font
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 13; // Kích thước font
+        parameter.size = 6; // Kích thước font
         parameter.color = Color.WHITE;
         parameter.borderWidth = 1;
         parameter.borderColor = Color.BLACK;
@@ -361,5 +361,43 @@ public abstract class Plant implements GameObject {
         countdownFont = generator.generateFont(parameter);
 
         generator.dispose();
+    }
+
+    // Add setters for loading saved game state
+    public void setGrowthState(GrowthState growthState) {
+        this.growthState = growthState;
+    }
+
+    public void setGrowthTimer(float growthTimer) {
+        this.growthTimer = growthTimer;
+    }
+
+    public void setWaterTimer(float waterTimer) {
+        this.waterTimer = waterTimer;
+    }
+
+    public void setNeedsWater(boolean needsWater) {
+        this.needsWater = needsWater;
+    }
+
+    /**
+     * Lấy thời gian phát triển hiện tại của cây
+     */
+    public float getGrowthTimer() {
+        return growthTimer;
+    }
+
+    /**
+     * Lấy thời gian từ lần tưới nước gần nhất
+     */
+    public float getWaterTimer() {
+        return waterTimer;
+    }
+
+    /**
+     * Kiểm tra xem cây có cần tưới nước không
+     */
+    public boolean isNeedsWater() {
+        return needsWater;
     }
 }
