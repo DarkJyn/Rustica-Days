@@ -35,7 +35,7 @@ public class SoundManager {
     }
 
     public void playFishingSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         fishingSound.play();
         Timer.schedule(new Timer.Task() {
             @Override
@@ -46,7 +46,7 @@ public class SoundManager {
     }
 
     public void playHealingSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         healingSound.play(1.0f);
         Timer.schedule(new Timer.Task() {
             @Override
@@ -58,7 +58,7 @@ public class SoundManager {
     }
 
     public void playInventoryOpenSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         inventoryOpenSound.play(1.0f);
         Timer.schedule(new Timer.Task() {
             @Override
@@ -69,7 +69,7 @@ public class SoundManager {
     }
 
     public void playPickingUpItemsSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         pickingUpItemsSound.play(1.0f);
         Timer.schedule(new Timer.Task() {
             @Override
@@ -81,7 +81,7 @@ public class SoundManager {
     }
 
     public void playPlantSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         plantSound.play(1.0f);
         Timer.schedule(new Timer.Task() {
             @Override
@@ -93,7 +93,7 @@ public class SoundManager {
     }
 
     public void playWaterSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         waterSound.play(1.0f);
         Timer.schedule(new Timer.Task() {
             @Override
@@ -105,7 +105,7 @@ public class SoundManager {
     }
 
     public void playShoppingSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         shoppingSound.play(1.0f);
         Timer.schedule(new Timer.Task() {
             @Override
@@ -116,7 +116,7 @@ public class SoundManager {
 
     }
     public void playLevelUpSound() {
-        bgm.setVolume(0.25f); // giảm âm lượng
+        if(bgm.getVolume() > 0) bgm.setVolume(0.25f); // giảm âm lượng
         levelUpSound.play(1.0f); // phát hiệu ứng
 
         Timer.schedule(new Timer.Task() {
