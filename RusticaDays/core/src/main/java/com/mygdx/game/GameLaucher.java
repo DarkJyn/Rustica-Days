@@ -141,13 +141,10 @@ public class GameLaucher extends Game {
         uiStage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(uiStage);
 
-        font = new BitmapFont();
-        font.setColor(Color.WHITE);
-
-        // Khởi tạo font Pixellari từ file TTF
+        // Khởi tạo font
         initFont();
 
-        // Inventory Logic + UI
+        // Khởi tạo Inventory
         inventoryManager = new InventoryManager(42);
         inventoryUI = new InventoryUI(uiStage, inventoryManager);
         uiStage.addActor(inventoryUI.getQuickBar());
@@ -166,50 +163,35 @@ public class GameLaucher extends Game {
             }
         });
 
-        // Thêm các mặt hàng vào inventory cho test
-        addInitialItems();
-
         // Khởi tạo Player
         player = new Player(370, 400, "Player.png", inventoryManager);
 
-        // Khởi tạo Sleep System
-        sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player,camera);
-
-        // Khởi tạo NPC
-        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI,statsBar);
-
-        // Khởi tạp nhận Input
-        inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
-        inputHandler.registerNPC(shopkeeper);
-
-        // Stats Bar
+        // Khởi tạo StatsBar
         statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        // Thiết lập một số giá trị ban đầu cho StatsBar
         statsBar.setMoney(10);
         statsBar.setExperience(0);
         statsBar.setStamina(100);
 
-        // Khởi tạo NPC
+        // Khởi tạo Shopkeeper
         shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI, statsBar);
-        shopkeeper.setStage(uiStage); // Đảm bảo SellUI có stage
+        shopkeeper.setStage(uiStage);
 
-        // Khởi tạp nhận Input
+        // Khởi tạo Input Handler
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
         inputHandler.registerNPC(shopkeeper);
 
         // Khởi tạo PlantManager
         plantManager = new PlantManager(inventoryManager);
 
-        renderManager = new RenderManager();
+        // Khởi tạo SleepSystem
+        sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player, camera);
 
-        // Thêm tất cả đối tượng vào RenderManager
+        // Khởi tạo RenderManager
+        renderManager = new RenderManager();
         renderManager.add(player);
 
-        // Khởi tạo hiệu ứng Level Up
+        // Khởi tạo Level Up Effect
         levelUpEffect = new LevelUpEffect();
-
-        // Đăng ký listener cho level up event
         statsBar.setLevelUpListener(new StatsBar.LevelUpListener() {
             @Override
             public void onLevelUp(int newLevel) {
@@ -217,12 +199,16 @@ public class GameLaucher extends Game {
             }
         });
 
+        // Khởi tạo các animation
         fButton = new Texture("FbuttonAni.png");
         spaceButton = new Texture("SpaceAni.png");
         createAnimations();
         stateTime = 0f;
         currentFrame = fButtonAnimation.getKeyFrame(0);
         currentSpaceFrame = spaceButtonAnimation.getKeyFrame(0);
+
+        // Thêm vật phẩm và tiền khởi đầu cho game mới
+        addInitialItems();
     }
 
     // Phương thức hiển thị hiệu ứng Level Up
@@ -776,5 +762,32 @@ public class GameLaucher extends Game {
         }
 
         spaceButtonAnimation = new Animation<>(2, spaceButtonFrames);
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public StatsBar getStatsBar() {
+        return statsBar;
+    }
+
+    public InventoryManager getInventoryManager() {
+        return inventoryManager;
+    }
+
+    public InventoryUI getInventoryUI() {
+        return inventoryUI;
+    }
+
+    /**
+     * Lấy PlantManager để có thể truy cập và thao tác với cây trồng
+     */
+    public PlantManager getPlantManager() {
+        return plantManager;
+    }
+
+    public RenderManager getRenderManager() {
+        return renderManager;
     }
 }
