@@ -36,6 +36,7 @@ import com.mygdx.game.items.seeds.EggplantSeed;
 import com.mygdx.game.items.tools.WateringCan;
 import com.mygdx.game.render.MapRenderer;
 import com.mygdx.game.render.RenderManager;
+import com.mygdx.game.sound.SoundManager;
 import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
 import com.mygdx.game.module.SleepSystem; // Import SleepSystem
@@ -102,6 +103,9 @@ public class GameLaucher extends ApplicationAdapter {
     private float fishingWaitDuration = 0f; // Thời gian ngồi câu random
     private Random fishingRandom = new Random();
 
+    // Quản lý âm thanh
+    private SoundManager soundManager;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -140,9 +144,11 @@ public class GameLaucher extends ApplicationAdapter {
                 if (selectedSlotIndex == slotIndex) {
                     selectedSlotIndex = -1;
                     System.out.println("Unselected slot");
+                    //inventoryUI.setIndex(-1);
                 } else {
                     selectedSlotIndex = slotIndex;
                     System.out.println("Selected slot " + (selectedSlotIndex + 1));
+                    //inventoryUI.setIndex(selectedSlotIndex);
                 }
             }
         });
@@ -195,6 +201,8 @@ public class GameLaucher extends ApplicationAdapter {
     private void showLevelUpEffect() {
         // Khởi động hiệu ứng level up ở giữa màn hình
         levelUpEffect.start(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // new sound
+        soundManager.playLevelUpSound();
         System.out.println("Level Up! Current level: " + statsBar.getLevel());
     }
 
@@ -225,6 +233,9 @@ public class GameLaucher extends ApplicationAdapter {
 
         // Cập nhật UI sau khi thêm vật phẩm
         inventoryUI.updateUI();
+
+        // Quản lý âm thanh
+        soundManager = new SoundManager();
     }
 
     @Override
@@ -510,11 +521,15 @@ public class GameLaucher extends ApplicationAdapter {
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1 + i)) {
                 if (selectedSlotIndex == i) {
                     selectedSlotIndex = -1;
+                    inventoryUI.setIndex(-1);
                     System.out.println("Unselected slot");
+
                 } else {
                     selectedSlotIndex = i;
+                    inventoryUI.setIndex(selectedSlotIndex);
                     System.out.println("Selected slot " + (selectedSlotIndex + 1));
                 }
+
             }
         }
 
@@ -576,6 +591,7 @@ public class GameLaucher extends ApplicationAdapter {
                                 WateringCan wc = (WateringCan) tool;
                                 WateringEffect effect = wc.useToolWithEffect(plantManager, mouseWorldX, mouseWorldY);
                                 if (effect != null) {
+                                    soundManager.playWaterSound();
                                     wateringEffects.add(effect);
                                     System.out.println("Watered plant at " + mouseWorldX + ", " + mouseWorldY);
                                     // Giảm stamina sau khi tưới nước thành công
@@ -631,6 +647,7 @@ public class GameLaucher extends ApplicationAdapter {
         if (playerX + frameWidth > mapWidth) player.setX(mapWidth - frameWidth);
         if (playerY + frameHeight > mapHeight) player.setY(mapHeight - frameHeight);
     }
+
 
     @Override
     public void resize(int width, int height) {
