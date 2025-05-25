@@ -23,10 +23,10 @@ public class TomatoSeed extends Seed {
     // Constructor mặc định
     public TomatoSeed() {
         super(
-            "Hạt cà chua",                               // Tên
-            "Hạt giống để trồng cà chua.",               // Mô tả
-            50,                                           // Giá mua
-            loadDefaultTexture(),                         // Texture
+            "Tomato Seed",                    // Tên
+            "Seed to grow Tomato",                // Mô tả
+            40,                                  // Giá mua
+            loadDefaultTexture(),              // Texture
             "com.mygdx.game.entities.plants.types.Tomato" // Tên class cây trồng
         );
     }

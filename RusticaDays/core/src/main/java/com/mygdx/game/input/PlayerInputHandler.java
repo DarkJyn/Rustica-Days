@@ -91,11 +91,6 @@ public class PlayerInputHandler {
                 interactingNPC.interact();
             }
 
-            // Xử lý phím SPACE để mở cửa hàng nếu đang hiển thị hộp thoại
-            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                interactingNPC.openShop();
-            }
-
             // Xử lý phím ESC để đóng cửa hàng
             if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) &&
                 interactingNPC.isShopOpen()) {

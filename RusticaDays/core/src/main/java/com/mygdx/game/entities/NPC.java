@@ -12,22 +12,27 @@ import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.inventory.InventoryManager;
 import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.NPCInteractionMenu;
+import com.mygdx.game.ui.SellUI;
 import com.mygdx.game.ui.ShopUI;
+import com.mygdx.game.ui.StatsBar;
 
 public class NPC extends Sprite {
     private boolean isInteractable;
     private boolean isShowingDialog;
     private boolean isShopOpen;
     private boolean isMenuOpen;
+    private boolean isSellMenuOpen;
     private GameCamera camera;
     private Rectangle interactionZone;  // Vùng xung quanh NPC để kiểm tra tương tác
     private BitmapFont font;
     private ShapeRenderer shapeRenderer;
     private ShopUI shopUI;
+    private SellUI sellUI;
     private Texture fButton;
     private Texture npcHelloTextBox;
     private InventoryUI inventoryUI;
     private InventoryManager inventoryManager;
+    private StatsBar statsBar;
     // Current animation state
     private TextureRegion currentFrame;
     private Animation<TextureRegion> fButtonAnimation;
@@ -35,18 +40,20 @@ public class NPC extends Sprite {
     // Thêm menu tương tác
     private NPCInteractionMenu interactionMenu;
 
-    public NPC(float x, float y, String spritesheetPath, GameCamera gameCamera, InventoryManager inventoryManager, InventoryUI inventoryUI) {
+    public NPC(float x, float y, String spritesheetPath, GameCamera gameCamera, InventoryManager inventoryManager, InventoryUI inventoryUI, StatsBar statsBar) {
         super(new Texture(spritesheetPath));
         this.setPosition(x, y);
         camera = gameCamera;
         this.inventoryManager = inventoryManager;
         this.inventoryUI = inventoryUI;
+        this.statsBar = statsBar;
         // Tạo vùng tương tác xung quanh NPC
         this.interactionZone = new Rectangle(x, y, getWidth() + 50, getHeight() + 50);
         this.isInteractable = false;
         this.isShowingDialog = false;
         this.isShopOpen = false;
         this.isMenuOpen = false;
+        this.isSellMenuOpen = false;
 
         // Khởi tạo font để hiển thị text
         font = new BitmapFont();
@@ -54,7 +61,10 @@ public class NPC extends Sprite {
         shapeRenderer = new ShapeRenderer();
 
         // Khởi tạo giao diện cửa hàng
-        shopUI = new ShopUI(inventoryManager, inventoryUI);
+        shopUI = new ShopUI(inventoryManager, inventoryUI,statsBar);
+
+        // Khởi tạo giao diện bán hàng
+        sellUI = new SellUI(inventoryManager, inventoryUI, statsBar);
 
         // Load Texture
         npcHelloTextBox = new Texture("[NPC]TextBoxHello.png");
@@ -93,6 +103,11 @@ public class NPC extends Sprite {
             if (isShopOpen) {
                 isShopOpen = false;
             }
+            // Nếu người chơi rời đi và menu bán hàng đang mở, đóng menu bán hàng
+            if (isSellMenuOpen) {
+                isSellMenuOpen = false;
+                sellUI.openSellMenu(false);
+            }
         }
 
         currentFrame = fButtonAnimation.getKeyFrame(stateTime * 2, true);
@@ -113,7 +128,7 @@ public class NPC extends Sprite {
         // super.draw(batch);
 
         // Hiển thị biểu tượng tương tác nếu player đang ở gần
-        if (isInteractable && !isShowingDialog && !isShopOpen && !isMenuOpen) {
+        if (isInteractable && !isShowingDialog && !isShopOpen && !isMenuOpen && !isSellMenuOpen) {
             batch.end();
             batch.setProjectionMatrix(camera.getCamera().combined);
             batch.begin();
@@ -121,7 +136,7 @@ public class NPC extends Sprite {
         }
 
         // Hiển thị hộp thoại nếu đang tương tác
-        if (isShowingDialog && !isShopOpen && !isMenuOpen){
+        if (isShowingDialog && !isShopOpen && !isMenuOpen && !isSellMenuOpen){
             batch.end();
             batch.begin();
             batch.draw(npcHelloTextBox, getX() - 300, getY() - 400, getWidth(), getHeight());
@@ -135,6 +150,11 @@ public class NPC extends Sprite {
         // Hiển thị cửa hàng
         if (isShopOpen) {
             shopUI.render(batch);
+        }
+
+        // Hiển thị menu bán hàng
+        if (isSellMenuOpen) {
+            sellUI.render(batch);
         }
     }
 
@@ -154,12 +174,13 @@ public class NPC extends Sprite {
     }
 
     public void interact() {
-        if (isInteractable && !isShowingDialog && !isMenuOpen && !isShopOpen) {
+        if (isInteractable && !isShowingDialog && !isMenuOpen && !isShopOpen && !isSellMenuOpen) {
             // Khi tương tác, mở menu thay vì hộp thoại
             isShowingDialog = true;
             showInteractionMenu();
         }
     }
+
     private void showInteractionMenu() {
         isMenuOpen = true;
         isShowingDialog = false;
@@ -189,14 +210,18 @@ public class NPC extends Sprite {
     }
 
     public void openSellMenu() {
-        // Mở menu bán hàng - có thể sử dụng lại shopUI với mode bán
-        shopUI.openShop(true); // Đổi thành openSellMenu() nếu bạn có phương thức riêng cho việc bán
-        isShopOpen = true;
+        sellUI.openSellMenu(true);
+        isSellMenuOpen = true;
     }
 
     public void closeShop() {
         isShopOpen = false;
         shopUI.openShop(false);
+    }
+
+    public void closeSellMenu() {
+        isSellMenuOpen = false;
+        sellUI.openSellMenu(false);
     }
 
     // Getter/Setter cần thiết
@@ -220,10 +245,19 @@ public class NPC extends Sprite {
         return isShopOpen && shopUI.isShopOpen();
     }
 
+    public boolean isSellMenuOpen() {
+        return isSellMenuOpen && sellUI.isSellMenuOpen();
+    }
+
+    public void setStage(com.badlogic.gdx.scenes.scene2d.Stage stage) {
+        sellUI.setStage(stage);
+    }
+
     public void dispose() {
         font.dispose();
         shapeRenderer.dispose();
         shopUI.dispose();
+        sellUI.dispose();
         interactionMenu.dispose();
     }
 }

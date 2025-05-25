@@ -40,7 +40,13 @@ public class InventoryManager {
     public void removeItem(Item item) {
         for (InventorySlot slot : slots) {
             if (!slot.isEmpty() && slot.getItem().equals(item)) {
-                slot.clear();
+                if (slot.getQuantity() == 1){
+                    slot.clear();
+
+                }
+                else {
+                    slot.setItem(slot.getItem(), slot.getQuantity() - 1);
+                }
                 return;
             }
         }

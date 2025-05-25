@@ -71,6 +71,7 @@ public class PlantManager {
         int row = cell[0];
         int col = cell[1];
         if (farmField.getPlantAt(row, col) != null) {
+            System.out.println("Outside");
             return null;
         }
         // Tính vị trí căn giữa cây trong ô đất
@@ -82,21 +83,21 @@ public class PlantManager {
         float yPos = FarmField.FIELD_BOTTOM + row * cellHeight + (cellHeight - height) / 2f;
         String seedName = seed.getName().toLowerCase();
         Plant plant = null;
-        if (seedName.contains("cà chua")) {
+        if (seedName.contains("tomato")) {
             plant = new Tomato(xPos, yPos, width, height);
-        } else if (seedName.contains("cà rốt")) {
+        } else if (seedName.contains("carrot")) {
             plant = new Carrot(xPos, yPos, width, height);
-        } else if (seedName.contains("hạt ngô")) {
+        } else if (seedName.contains("strawberry")) {
             plant = new Corn(xPos, yPos, width, height);
-        } else if (seedName.contains("lúa")) {
+        } else if (seedName.contains("rice")) {
             plant = new Rice(xPos, yPos, width, height);
-        } else if (seedName.contains("cà tím")) {
+        } else if (seedName.contains("cabbage")) {
             plant = new Eggplant(xPos, yPos, width, height);
-        } else if(seedName.contains("bí ngô")){
+        } else if(seedName.contains("pumpkin")) {
             plant = new Pumpkin(xPos, yPos, width, height + 4);
-        } else if (seedName.contains("dền")){
+        } else if (seedName.contains("radish")){
             plant = new Radish(xPos, yPos, width, height);
-        } else if (seedName.contains("tỏi")) {
+        } else if (seedName.contains("garlic")) {
             plant = new Garlic(xPos, yPos, width, height + 2);
         }
         if (plant != null) {

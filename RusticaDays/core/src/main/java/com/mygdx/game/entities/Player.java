@@ -66,17 +66,29 @@ public class Player implements GameObject {
     public void render(SpriteBatch batch) {
         int frameWidth = animationManager.getFrameWidth();
         int frameHeight = animationManager.getFrameHeight();
-
-        float drawX = x - frameWidth / 3f; // Căn giữa nhân vật theo X
-        float drawY = y - 4;
-        // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
-        if (facingLeft) {
-            // Lật texture sang trái
-            batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
-        } else {
-            batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
+        if(frameHeight == 32){
+            float drawX = x - frameWidth / 3f - 1; // Căn giữa nhân vật theo X
+            float drawY = y - 4;
+            // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
+            if (facingLeft) {
+                // Lật texture sang trái
+                batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
+            } else {
+                batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
+            }
         }
 
+        else if(frameHeight == 64){
+            float drawX = x - frameWidth / 3f - 5; // Căn giữa nhân vật theo X
+            float drawY = y - 20;
+            // Hàm điều kiện vẽ frame hiện tại( vì chỉ có asset quay sang phải nên phải if else ạ :)) )
+            if (facingLeft) {
+                // Lật texture sang trái
+                batch.draw(animationManager.getCurrentFrame(), drawX + frameWidth, drawY, -frameWidth, frameHeight);
+            } else {
+                batch.draw(animationManager.getCurrentFrame(), drawX, drawY);
+            }
+        }
         // Vẽ notification trên đầu nhân vật
         if (notificationMessage != null) {
             if (Plant.countdownFont == null) {
@@ -91,8 +103,9 @@ public class Player implements GameObject {
                 }
             }
             Plant.countdownFont.setColor(Color.GOLD);
-            float textX = x - 30; // căn giữa, tuỳ chỉnh lại nếu cần
-            float textY = y + 15;    // phía trên đầu nhân vật
+            Plant.initFont();
+            float textX = x - 50; // căn giữa, tuỳ chỉnh lại nếu cần
+            float textY = y + 50;    // phía trên đầu nhân vật
             Plant.countdownFont.draw(batch, notificationMessage, textX, textY);
             Plant.countdownFont.setColor(Color.WHITE);
         }
@@ -190,7 +203,7 @@ public class Player implements GameObject {
      */
     public FishType tryCatchFish() {
         Random random = new Random();
-        if (random.nextFloat() < 0.7f) {
+        if (random.nextFloat() < 0.5f) {
             int fishIndex = random.nextInt(FishType.values().length);
             FishType caughtFish = FishType.values()[fishIndex];
             FishItem fishItem = new FishItem(caughtFish);

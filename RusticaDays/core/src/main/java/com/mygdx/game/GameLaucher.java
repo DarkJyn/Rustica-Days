@@ -1,21 +1,23 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.mygdx.game.camera.GameCamera;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.entities.animations.WateringEffect;
@@ -41,11 +43,12 @@ import com.mygdx.game.ui.InventoryUI;
 import com.mygdx.game.ui.StatsBar;
 import com.mygdx.game.module.SleepSystem; // Import SleepSystem
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-public class GameLaucher extends ApplicationAdapter {
+public class GameLaucher extends Game {
     private SpriteBatch batch;
     private GameCamera camera;
     private MapRenderer mapRenderer;
@@ -60,7 +63,15 @@ public class GameLaucher extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private float mapWidth;
     private float mapHeight;
+    private Texture fButton;
+    private Texture spaceButton;
+    private float stateTime;
+    private TextureRegion currentFrame;
+    private Animation<TextureRegion> fButtonAnimation;
+    private TextureRegion currentSpaceFrame;
+    private Animation<TextureRegion> spaceButtonAnimation;
     private RenderManager renderManager;
+    private BitmapFont font;
 
     // Level up effect
     private LevelUpEffect levelUpEffect;
@@ -87,9 +98,11 @@ public class GameLaucher extends ApplicationAdapter {
     private static final float PLANTING_STAMINA_COST = 5f;
     private static final float WATERING_STAMINA_COST = 5f;
     private static final float HARVESTING_STAMINA_COST = 10f;
+    private static final float FISHING_STAMINA_COST = 10f;
 
     // Experience rewards
     private static final int PLANTING_XP_REWARD = 5;
+    private static final int FISHING_XP_REWARD = 10;
     private static final int HARVESTING_XP_REWARD = 15;
 
     // Sleep system constants
@@ -132,6 +145,12 @@ public class GameLaucher extends ApplicationAdapter {
         uiStage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(uiStage);
 
+        font = new BitmapFont();
+        font.setColor(Color.WHITE);
+
+        // Khởi tạo font Pixellari từ file TTF
+        initFont();
+
         // Inventory Logic + UI
         inventoryManager = new InventoryManager(42);
         inventoryUI = new InventoryUI(uiStage, inventoryManager);
@@ -157,13 +176,13 @@ public class GameLaucher extends ApplicationAdapter {
         addInitialItems();
 
         // Khởi tạo Player
-        player = new Player(660, 360, "Player.png", inventoryManager);
+        player = new Player(370, 400, "Player.png", inventoryManager);
 
         // Khởi tạo Sleep System
         sleepSystem = new SleepSystem(bedPosition, BED_WIDTH, BED_HEIGHT, player,camera);
 
         // Khởi tạo NPC
-        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI);
+        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI,statsBar);
 
         // Khởi tạp nhận Input
         inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
@@ -173,9 +192,17 @@ public class GameLaucher extends ApplicationAdapter {
         statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Thiết lập một số giá trị ban đầu cho StatsBar
-        statsBar.setMoney(500);
-        statsBar.setExperience(90);
+        statsBar.setMoney(10);
+        statsBar.setExperience(0);
         statsBar.setStamina(100);
+
+        // Khởi tạo NPC
+        shopkeeper = new NPC(345, 460, "NPC.png", camera, inventoryManager, inventoryUI, statsBar);
+        shopkeeper.setStage(uiStage); // Đảm bảo SellUI có stage
+
+        // Khởi tạp nhận Input
+        inputHandler = new PlayerInputHandler(player, mapRenderer.getMap());
+        inputHandler.registerNPC(shopkeeper);
 
         // Khởi tạo PlantManager
         plantManager = new PlantManager(inventoryManager);
@@ -195,6 +222,13 @@ public class GameLaucher extends ApplicationAdapter {
                 showLevelUpEffect();
             }
         });
+
+        fButton = new Texture("FbuttonAni.png");
+        spaceButton = new Texture("SpaceAni.png");
+        createAnimations();
+        stateTime = 0f;
+        currentFrame = fButtonAnimation.getKeyFrame(0);
+        currentSpaceFrame = spaceButtonAnimation.getKeyFrame(0);
     }
 
     // Phương thức hiển thị hiệu ứng Level Up
@@ -208,19 +242,10 @@ public class GameLaucher extends ApplicationAdapter {
 
     private void addInitialItems() {
         // Tạo các mặt hàng hạt giống sử dụng constructor mặc định
-        TomatoSeed tomatoSeed = new TomatoSeed();
-        CarrotSeed carrotSeed = new CarrotSeed();
-        CornSeed cornSeed = new CornSeed();
         RiceSeed riceSeed = new RiceSeed();
-        EggplantSeed eggplantSeed = new EggplantSeed();
 
         // Thêm hạt giống vào inventory
-        inventoryManager.addItem(tomatoSeed, 1);
-        inventoryManager.addItem(carrotSeed, 7);
-        inventoryManager.addItem(cornSeed, 1);
-        inventoryManager.addItem(riceSeed, 1);
-        inventoryManager.addItem(eggplantSeed, 5);
-        inventoryManager.addItem(eggplantSeed, 5);
+        inventoryManager.addItem(riceSeed, 3);
 
         // Thêm tool vào inventory
         com.mygdx.game.items.tools.WateringCan wateringCan = new com.mygdx.game.items.tools.WateringCan();
@@ -241,7 +266,9 @@ public class GameLaucher extends ApplicationAdapter {
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
-
+        stateTime += Gdx.graphics.getDeltaTime();
+        currentFrame = fButtonAnimation.getKeyFrame(stateTime * 2, true);
+        currentSpaceFrame = spaceButtonAnimation.getKeyFrame(stateTime * 2, true);
         // Bật/tắt debug mode khi nhấn F3
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
             debugMode = !debugMode;
@@ -280,6 +307,8 @@ public class GameLaucher extends ApplicationAdapter {
         if (px >= 475.75125 && px <= 501.8265 && py >= 131.38489 && py <= 157.67522) {
             inFishingZone = true;
         }
+
+
         // Kiểm tra chọn cần câu
         boolean holdingFishingRod = false;
         if (selectedSlotIndex >= 0 && selectedSlotIndex < inventoryManager.getSlots().size()) {
@@ -321,7 +350,7 @@ public class GameLaucher extends ApplicationAdapter {
             }
 
             // Áp dụng kết thúc câu cá nếu cần
-            if (shouldStopFishing) {
+            if (shouldStopFishing || (isFishing && Gdx.input.isKeyPressed(Input.Keys.SPACE))){
                 isFishing = false;
                 player.standStill();
                 System.out.println("Kết thúc câu cá do " + stopReason);
@@ -335,8 +364,8 @@ public class GameLaucher extends ApplicationAdapter {
                         fishingTimer = 0f;
                         // Reset animation timer khi đổi phase
                         player.getAnimationManager().resetStateTime();
-                        // Random thời gian ngồi câu (5-15s)
-                        fishingWaitDuration = 5f + fishingRandom.nextFloat() * 10f;
+                        // Random thời gian ngồi câu (7-17s)
+                        fishingWaitDuration = 7f + fishingRandom.nextFloat() * 10f;
                     }
                 } else if (fishingPhase == 1) { // FISH_WAIT
                     player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_WAIT);
@@ -364,16 +393,17 @@ public class GameLaucher extends ApplicationAdapter {
                         // Sau khi kéo cần xong, random cá
                         com.mygdx.game.entities.animals.FishType fish = player.tryCatchFish();
                         if (fish != null) {
-                            player.showNotification("Bạn đã câu được: " + com.mygdx.game.items.animalproducts.FishItem.getFishName(fish));
+                            statsBar.addExperience(FISHING_XP_REWARD);
+                            player.showNotification(com.mygdx.game.items.animalproducts.FishItem.getFishName(fish));
                             inventoryUI.updateUI();
                         } else {
-                            player.showNotification("Không câu được cá lần này!");
+                            player.showNotification("Nothing!");
                         }
                     }
                 }
             }
         } else {
-            // Kiểm tra xem có thể bắt đầu câu cá tự động khi dừng lại không
+            // Kiểm tra xem có thể bắt đầu câu cá tự động khi dfừng lại không
             boolean playerStopped = !Gdx.input.isKeyPressed(Input.Keys.LEFT) &&
                 !Gdx.input.isKeyPressed(Input.Keys.RIGHT) &&
                 !Gdx.input.isKeyPressed(Input.Keys.UP) &&
@@ -384,14 +414,21 @@ public class GameLaucher extends ApplicationAdapter {
                 !Gdx.input.isKeyPressed(Input.Keys.S);
 
             // Bắt đầu câu cá tự động khi dừng lại trong vùng câu cá và đang cầm cần câu
-            if (playerStopped && inFishingZone && holdingFishingRod && !isFishing) {
-                isFishing = true;
-                fishingTimer = 0f;
-                fishingPhase = 0;
-                fishingWaitDuration = 0f;
-                player.getAnimationManager().resetStateTime();
-                System.out.println("Tự động bắt đầu câu cá khi dừng lại trong vùng nước");
+            if (playerStopped && inFishingZone && holdingFishingRod && !isFishing && Gdx.input.isKeyPressed(Input.Keys.F)){
+                if( statsBar.getStamina() >= FISHING_STAMINA_COST){
+                    statsBar.decreaseStamina(FISHING_STAMINA_COST);
+                    isFishing = true;
+                    fishingTimer = 0f;
+                    fishingPhase = 0;
+                    fishingWaitDuration = 0f;
+                    player.getAnimationManager().resetStateTime();
+                    System.out.println("Tự động bắt đầu câu cá khi dừng lại trong vùng nước");
+                }
+                else{
+                    System.out.println("Not enough stamina to fishing");
+                }
             }
+
         }
 
         // Cập nhật stats bar
@@ -478,7 +515,7 @@ public class GameLaucher extends ApplicationAdapter {
         batch.end();
 
         // Kiểm tra nhấn phím I để toggle full inventory (chỉ khi không ngủ)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.I) && !sleepSystem.shouldBlockPlayerMovement()) {
+        if ((Gdx.input.isKeyJustPressed(Input.Keys.TAB) || Gdx.input.isKeyJustPressed(Input.Keys.I)) && !sleepSystem.shouldBlockPlayerMovement()) {
             inventoryUI.toggleInventory();
         }
 
@@ -488,6 +525,21 @@ public class GameLaucher extends ApplicationAdapter {
         if (playerX > 452.6428 && playerX < 555.06213 && playerY > 304.81705 && playerY < 435.53748) {
             handleFarmingInput();
         }
+        if(inFishingZone && !isFishing){
+            batch.setProjectionMatrix(camera.getCamera().combined);
+            batch.begin();
+            batch.draw(currentFrame,player.getPosition().x - 4, player.getPosition().y + 24, 18, 18);
+            batch.end();
+        }
+
+        if(isFishing){
+//            batch.setProjectionMatrix(camera.getCamera().combined);
+            batch.begin();
+            font.draw(batch, "Press       to stop fishing", player.getPosition().x - 80,  player.getPosition().y + 20);
+            batch.draw(currentSpaceFrame,player.getPosition().x + 20 , player.getPosition().y - 5, 144, 48);
+            batch.end();
+        }
+
 
         uiStage.act(delta);
         uiStage.draw();
@@ -499,7 +551,6 @@ public class GameLaucher extends ApplicationAdapter {
     }
 
     private void handleSleepEffects() {
-
 
         statsBar.setStamina(statsBar.getMaxStamina());
         // Tăng kinh nghiệm
@@ -648,6 +699,22 @@ public class GameLaucher extends ApplicationAdapter {
         if (playerY + frameHeight > mapHeight) player.setY(mapHeight - frameHeight);
     }
 
+    private void initFont() {
+        // Tạo generator từ file Pixellari.ttf
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/PressStart2P.ttf"));
+
+        // Thiết lập tham số font
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        parameter.size = 20; // Kích thước font
+        parameter.color = Color.WHITE;
+        parameter.borderWidth = 1;
+        parameter.borderColor = Color.BLACK;
+
+        // Tạo font từ generator và parameter
+        font = generator.generateFont(parameter);
+    }
+
 
     @Override
     public void resize(int width, int height) {
@@ -700,5 +767,31 @@ public class GameLaucher extends ApplicationAdapter {
 
     public boolean isPlayerSleeping() {
         return sleepSystem != null && sleepSystem.isSleepAnimationPlaying();
+    }
+    private void createAnimations() {
+        TextureRegion[][] tmp = TextureRegion.split(
+            fButton,
+            fButton.getWidth() / 2,
+            fButton.getHeight());
+
+        TextureRegion[] fButtonFrames = new TextureRegion[2];
+
+        for (int i = 0; i < 2; i++) {
+            fButtonFrames[i] = tmp[0][i];
+        }
+
+        fButtonAnimation = new Animation<>(2, fButtonFrames);
+        TextureRegion[][] tmp1 = TextureRegion.split(
+            spaceButton,
+            spaceButton.getWidth() / 2,
+            spaceButton.getHeight());
+
+        TextureRegion[] spaceButtonFrames = new TextureRegion[2];
+
+        for (int i = 0; i < 2; i++) {
+            spaceButtonFrames[i] = tmp1[0][i];
+        }
+
+        spaceButtonAnimation = new Animation<>(2, spaceButtonFrames);
     }
 }

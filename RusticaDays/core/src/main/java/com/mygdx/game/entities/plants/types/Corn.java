@@ -14,7 +14,7 @@ public class Corn extends Plant {
 
     private static final float WATER_NEED_INTERVAL = 15f;       // Cần tưới mỗi 15 giây
     private static final int FIXED_YIELD = 2;                    // Số lượng thu hoạch
-    private static final int FIXED_PRICE = 150;                  // Giá bán cố định
+    private static final int FIXED_PRICE = 1200;                  // Giá bán cố định
     private static final int FIXED_EXP = 100;
 
     public Corn(float x, float y, float width, float height) {
@@ -78,7 +78,7 @@ public class Corn extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Corn(
-            "Ngô",
+            "Strawberry",
             FIXED_PRICE,
             FIXED_YIELD
         );

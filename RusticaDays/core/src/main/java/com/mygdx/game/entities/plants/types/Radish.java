@@ -14,7 +14,7 @@ public class Radish extends Plant {
 
     private static final float WATER_NEED_INTERVAL = 8f;       // Cần tưới mỗi 8 giây
     private static final int FIXED_YIELD = 8;                  // Số lượng thu hoạch
-    private static final int FIXED_PRICE = 80;                 // Giá bán cố định
+    private static final int FIXED_PRICE = 160;                 // Giá bán cố định
     private static final int FIXED_EXP = 100;
 
     public Radish(float x, float y, float width, float height) {
@@ -78,7 +78,7 @@ public class Radish extends Plant {
     @Override
     protected Harvest createHarvestedCrop() {
         return new com.mygdx.game.items.crops.Radish(
-            "dền",
+            "Radish",
             FIXED_PRICE,
             FIXED_YIELD
         );
