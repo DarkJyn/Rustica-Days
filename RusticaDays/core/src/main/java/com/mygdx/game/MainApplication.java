@@ -2,6 +2,10 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.FileWriter;
@@ -24,6 +28,12 @@ import com.mygdx.game.render.RenderManager;
 public class MainApplication extends Game {
     private GameWrapper gameWrapper;
     private MainMenuScreen mainMenuScreen;
+    private TutorialScreen tutorialScreen;
+    private Texture cursorTexture;
+    private SpriteBatch cursorBatch;
+    private int cursorOffsetX = 0;
+    private int cursorOffsetY = 0;
+    private float cursorScale = 0.8f;  // Thêm hệ số tỷ lệ cho con trỏ
     private static final String SAVE_FILE_PATH = "game_state.json";
     private static final String DEFAULT_SAVE_PATH = "default_game_state.json";
     private float autoSaveTimer = 0f;
@@ -31,8 +41,15 @@ public class MainApplication extends Game {
 
     @Override
     public void create() {
+        // Khởi tạo custom cursor
+        cursorTexture = new Texture(Gdx.files.internal("cursor.png"));
+        cursorBatch = new SpriteBatch();
+        Gdx.input.setCursorCatched(false);
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(1, 1, Pixmap.Format.RGBA8888), 0, 0));
+
         // Khởi tạo main menu screen đầu tiên
         mainMenuScreen = new MainMenuScreen(this);
+        tutorialScreen = new TutorialScreen(this);
         setScreen(mainMenuScreen);
 
         // Add shutdown hook to save game when application is terminated
@@ -54,6 +71,25 @@ public class MainApplication extends Game {
                 autoSaveTimer = 0f;
             }
         }
+    }
+
+    @Override
+    public void render() {
+        super.render();
+
+        // Vẽ custom cursor
+        cursorBatch.begin();
+        float cursorX = Gdx.input.getX() - cursorOffsetX;
+        float cursorY = Gdx.graphics.getHeight() - Gdx.input.getY() - cursorOffsetY - 50;
+        float scaledWidth = cursorTexture.getWidth() * cursorScale;
+        float scaledHeight = cursorTexture.getHeight() * cursorScale;
+        cursorBatch.draw(cursorTexture, cursorX, cursorY, scaledWidth, scaledHeight);
+        cursorBatch.end();
+    }
+
+    // Phương thức để hiển thị tutorial
+    public void showTutorial() {
+        setScreen(tutorialScreen);
     }
 
     // Phương thức để chuyển sang game mới
@@ -398,6 +434,15 @@ public class MainApplication extends Game {
         }
         if (mainMenuScreen != null) {
             mainMenuScreen.dispose();
+        }
+        if (tutorialScreen != null) {
+            tutorialScreen.dispose();
+        }
+        if (cursorTexture != null) {
+            cursorTexture.dispose();
+        }
+        if (cursorBatch != null) {
+            cursorBatch.dispose();
         }
     }
 }

@@ -170,7 +170,7 @@ public class GameLaucher extends Game {
         });
 
         // Khởi tạo Player
-        player = new Player(370, 400, "Player.png", inventoryManager);
+        player = new Player(650, 350, "Player.png", inventoryManager);
 
         // Khởi tạo StatsBar
         statsBar = new StatsBar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

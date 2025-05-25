@@ -19,6 +19,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 
 public class MainMenuScreen implements Screen {
     private MainApplication mainApp;
@@ -32,6 +37,7 @@ public class MainMenuScreen implements Screen {
     private Animation<TextureRegion> backgroundAnimation;
     private float stateTime;
     private TextureAtlas backgroundAtlas;
+    private TextureRegion[] backgroundFrames;  // Thêm mảng để lưu các frame
 
     // Title image
     private Texture titleTexture;
@@ -41,6 +47,10 @@ public class MainMenuScreen implements Screen {
     private TextButton loadGameButton;
     private TextButton settingsButton;
     private TextButton exitButton;
+
+    private Texture buttonTexture;
+    private Texture buttonPressedTexture;
+    private Texture buttonHoverTexture;
 
     public MainMenuScreen(MainApplication mainApp) {
         this.mainApp = mainApp;
@@ -53,22 +63,50 @@ public class MainMenuScreen implements Screen {
         stage = new Stage(new FitViewport(1302, 942, camera));
         Gdx.input.setInputProcessor(stage);
 
-        // Load background animation
-        backgroundAtlas = new TextureAtlas(Gdx.files.internal("MenuBG.atlas"));
-        backgroundAnimation = new Animation<>(0.1f, backgroundAtlas.findRegions("MenuBG"));
+        // Load background animation frames
+        backgroundFrames = new TextureRegion[80];
+        for (int i = 0; i < 80; i++) {
+            String framePath = String.format("BackGrMainMenu/frame_%02d_delay-0.1s.png", i);
+            backgroundFrames[i] = new TextureRegion(new Texture(Gdx.files.internal(framePath)));
+        }
+        backgroundAnimation = new Animation<>(0.15f, backgroundFrames);  // Tăng delay lên 0.2s để animation chậm hơn 2 lần
         stateTime = 0f;
 
         // Load title image
         titleTexture = new Texture(Gdx.files.internal("TextMenu.png"));
 
-        // Tạo font và skin đơn giản
-        font = new BitmapFont();
+        // Load button textures
+        buttonTexture = new Texture(Gdx.files.internal("button.png"));
+        buttonPressedTexture = new Texture(Gdx.files.internal("button_pressed.png"));
+        buttonHoverTexture = new Texture(Gdx.files.internal("button_hover.png"));
+
+        // Load and generate custom font
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/dogicapixelbold.ttf"));
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        parameter.size = 20;
+        parameter.color = Color.WHITE;
+        font = generator.generateFont(parameter);
+        generator.dispose();
+
         skin = new Skin();
         skin.add("default-font", font);
 
-        // Tạo style cho button
+        // Tạo style cho button với press effect và hover effect
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
+        buttonStyle.fontColor = Color.WHITE;
+        buttonStyle.downFontColor = Color.GRAY;
+//        buttonStyle.overFontColor = Color.YELLOW;
+
+        // Set button background
+        Drawable buttonDrawable = new TextureRegionDrawable(new TextureRegion(buttonTexture));
+        Drawable buttonPressedDrawable = new TextureRegionDrawable(new TextureRegion(buttonPressedTexture));
+        Drawable buttonHoverDrawable = new TextureRegionDrawable(new TextureRegion(buttonHoverTexture));
+
+        buttonStyle.up = buttonDrawable;
+        buttonStyle.down = buttonPressedDrawable;
+        buttonStyle.over = buttonHoverDrawable;
+
         skin.add("default", buttonStyle);
 
         // Tạo style cho label
@@ -86,12 +124,12 @@ public class MainMenuScreen implements Screen {
         newGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                mainApp.startNewGame();
+                mainApp.showTutorial();
                 mainApp.saveGame(); // Save the default state when starting a new game
             }
         });
 
-        loadGameButton = new TextButton("Continue Game", skin);
+        loadGameButton = new TextButton("Load Game", skin);
         loadGameButton.getLabel().setFontScale(1.5f);
         loadGameButton.addListener(new ClickListener() {
             @Override
@@ -125,15 +163,15 @@ public class MainMenuScreen implements Screen {
         table.center();
 
         // Thêm các component vào table
-        table.add().height(200).padBottom(50); // Space for title image
+        table.add().height(300).padBottom(50); // Tăng khoảng cách từ title xuống
         table.row();
-        table.add(newGameButton).width(200).height(50).padBottom(20);
+        table.add(newGameButton).width(360).height(95).padBottom(15).padTop(70); // Thêm padding phía trên
         table.row();
-        table.add(loadGameButton).width(200).height(50).padBottom(20);
+        table.add(loadGameButton).width(360).height(95).padBottom(15);
         table.row();
-        table.add(settingsButton).width(200).height(50).padBottom(20);
+        table.add(settingsButton).width(360).height(95).padBottom(15);
         table.row();
-        table.add(exitButton).width(200).height(50);
+        table.add(exitButton).width(360).height(95);
 
         stage.addActor(table);
     }
@@ -158,8 +196,8 @@ public class MainMenuScreen implements Screen {
         // Draw title image
         float titleWidth = titleTexture.getWidth(); // Scale down to 50%
         float titleHeight = titleTexture.getHeight();
-        float titleX = (stage.getWidth() - titleWidth) - 50;
-        float titleY = stage.getHeight() - titleHeight; // 50 pixels from top
+        float titleX = (stage.getWidth() - titleWidth) + 175;
+        float titleY = stage.getHeight() - titleHeight + 50; // 50 pixels from top
         batch.draw(titleTexture, titleX, titleY, titleWidth, titleHeight);
 
         batch.end();
@@ -189,7 +227,16 @@ public class MainMenuScreen implements Screen {
         if (batch != null) batch.dispose();
         if (skin != null) skin.dispose();
         if (font != null) font.dispose();
-        if (backgroundAtlas != null) backgroundAtlas.dispose();
+        if (backgroundFrames != null) {
+            for (TextureRegion frame : backgroundFrames) {
+                if (frame != null && frame.getTexture() != null) {
+                    frame.getTexture().dispose();
+                }
+            }
+        }
         if (titleTexture != null) titleTexture.dispose();
+        if (buttonTexture != null) buttonTexture.dispose();
+        if (buttonPressedTexture != null) buttonPressedTexture.dispose();
+        if (buttonHoverTexture != null) buttonHoverTexture.dispose();
     }
 }
