@@ -1,0 +1,35 @@
+{
+  "playerX": 465.37796,
+  "playerY": 180.89157,
+  "playerLevel": 1,
+  "playerExperience": 20.0,
+  "playerStamina": 40.0,
+  "playerMoney": 10,
+  "inventoryItems": [
+    {
+      "name": "Rice Seed",
+      "quantity": 3
+    },
+    {
+      "name": "Bình tưới nước",
+      "quantity": 1
+    },
+    {
+      "name": "Liềm",
+      "quantity": 1
+    },
+    {
+      "name": "Cần câu",
+      "quantity": 1
+    },
+    {
+      "name": "Fish_FISH2",
+      "quantity": 1
+    },
+    {
+      "name": "Fish_FISH1",
+      "quantity": 1
+    }
+  ],
+  "plants": []
+}

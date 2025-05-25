@@ -308,7 +308,7 @@ public class GameLaucher extends Game {
         }
         // Xử lý hiệu ứng hoạt ảnh câu cá (lặp lại)
         if (isFishing) {
-            soundManager.playFishingSound();
+            //soundManager.playFishingSound();
             boolean shouldStopFishing = false;
             String stopReason = "";
 
@@ -344,7 +344,8 @@ public class GameLaucher extends Game {
                 isFishing = false;
                 player.standStill();
                 System.out.println("Kết thúc câu cá do " + stopReason);
-            } else {
+            }
+            else {
                 // Tiếp tục câu cá khi không di chuyển
                 fishingTimer += delta;
                 if (fishingPhase == 0) { // FISH_CAST
@@ -368,6 +369,7 @@ public class GameLaucher extends Game {
                 } else if (fishingPhase == 2) { // FISH_HOOK
                     player.setState(com.mygdx.game.entities.animations.PlayerAnimationManager.PlayerState.FISH_HOOK);
                     if (fishingTimer > 2.0f) {
+                        soundManager.playWaterSound();
                         fishingPhase = 3;
                         fishingTimer = 0f;
                         // Reset animation timer khi đổi phase
